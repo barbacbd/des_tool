@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "geometry.h"
 
 /* get the area of the triangle */

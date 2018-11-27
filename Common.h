@@ -3,6 +3,7 @@
 
 #pragma once
 #include <vector>
+#include <string>
 
 #define _DEBUG_PRG
 #define FULLSCREEN_MODE

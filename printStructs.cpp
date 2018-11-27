@@ -1,6 +1,5 @@
-#include "stdafx.h"
 #include "printStructs.h"
-
+#include <stdio.h>
 
 /* Print the Event Type */
 void printEventType(ETYPE e) 

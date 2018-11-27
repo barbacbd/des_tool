@@ -1,5 +1,5 @@
-#include "stdafx.h"
 #include "readFile.h"
+#include <string>
 
 using namespace std;
 
@@ -95,7 +95,7 @@ void readFile(string fileName, System_Information *info)
 			{
 				string order = line.substr(col + 1, (int)line.length() - (col + 1));
 				/* Event Order -> EX: Arrival, Depart, Terminate */
-				char *str = _strdup(order.c_str());
+				char *str = strdup(order.c_str());
 				char * token;
 				token = strtok(str, ", \t");
 				int pos = 0;
@@ -142,7 +142,7 @@ void readFile(string fileName, System_Information *info)
 		else 
 		{
 			/* Event Number - Entity Affected - Event Type - Event Time */
-			char *str = _strdup(line.c_str());
+			char *str = strdup(line.c_str());
 			char * token;
 			token = strtok(str, " \t");
 			

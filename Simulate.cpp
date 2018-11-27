@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Simulate.h"
 
 /* Create the manual simulation of all events */

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "draw.h"
 
 /********************** BEGIN PRIVATE INTERNAL FUNCTIONS *********************/

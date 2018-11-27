@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "statistics.h"
 
 /********************** Private statistical functions ************************/
