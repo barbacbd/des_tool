@@ -1,6 +1,5 @@
 #ifndef _READ_WRITE_FILE_H
 #define _READ_WRITE_FILE_H
-#pragma once
 
 #include <iostream>
 #include <fstream>
