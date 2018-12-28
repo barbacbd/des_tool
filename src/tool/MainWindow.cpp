@@ -60,8 +60,8 @@ void MainWindow::onFileOpen()
 
         /// process this file
 
-//        DESFile desFile = DESFile(fd.selectedFiles().at(0));
-//        desFile.read();
+        DESFile desFile = DESFile(fd.selectedFiles().at(0));
+        desFile.read();
 
 //        readJsonDocument(fd.selectedFiles().at(0));
 

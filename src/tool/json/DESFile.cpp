@@ -1,5 +1,7 @@
-
+#include <iostream>
 #include "DESFile.h"
+#include <QDebug>
+#include <boost/algorithm/string.hpp>
 
 
 DESFile::DESFile(QString filename)
@@ -79,12 +81,36 @@ QJsonValue DESFile::getJsonValue(QString name)
 void DESFile::orderEvents(QJsonValue events, QJsonValue order)
 {
     QJsonArray event_array = events.toArray();
-    QJsonArray order_array = events.toArray();
+    QJsonArray order_array = order.toArray();
 
-    for(QJsonArray::iterator it = order_array.begin(); it != order_array.end(); it++)
+    int pos = 0;
+    for(QJsonArray::iterator it = order_array.begin(); it != order_array.end(); it++, pos++)
     {
-        std::cout << "it = " << (*it).toString().toStdString() << std::endl;
+        std::string type = (*it).toString().toStdString();
+
+        /// set the priority for each type of EVENT
+        if(boost::iequals(type, "ARRIVAL") || boost::iequals(type, "A"))
+        {
+            m_event_types[ARRIVAL] = pos;
+        }
+        else if(boost::iequals(type, "DEPARTURE") || boost::iequals(type, "D"))
+        {
+            m_event_types[DEPARTURE] = pos;
+        }
+        else if(boost::iequals(type, "TERMINATE") || boost::iequals(type, "T"))
+        {
+            m_event_types[TERMINATE] = pos;
+        }
     }
+
+//    foreach (const QJsonValue & value, order_array) {
+//        QJsonObject obj = value.toObject();
+//
+//        foreach(const QString& key, obj.keys()) {
+//            QJsonValue value = obj.value(key);
+//            qDebug() << "Key = " << key << ", Value = " << value.toString();
+//        }
+//    }
 }
 
 /// function to create servers

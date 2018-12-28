@@ -13,6 +13,14 @@
 #include <QJsonObject>
 #include <QStringList>
 #include <QFile>
+#include <QJsonArray>
+
+enum EVENT_TYPE
+{
+    ARRIVAL,
+    DEPARTURE,
+    TERMINATE
+};
 
 class DESFile
 {
@@ -60,6 +68,8 @@ private:
     QJsonDocument m_doc;
 
     QString m_filename;
+
+    std::map<int, int> m_event_types;
 
 };
 

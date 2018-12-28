@@ -1,13 +1,4 @@
-add_subdirectory(json)
-
-set(DES_TOOL_SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow.cpp
-)
-
-set(DES_TOOL_HEADERS
-        ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow.h
-)
+add_subdirectory(tool)
 
 set(DES_TOOL_SOURCES
         ${DES_TOOL_SOURCES}
