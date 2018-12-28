@@ -8,3 +8,8 @@ systems are easy for users to introduce errors, the systems are deterministic. T
 systems means that automating the work using a computer is much simpler.
 
 > The user will be required to install OpenGL on their system.
+
+## Future Work
+
+- read in JSON files
+- convert all structs to objects

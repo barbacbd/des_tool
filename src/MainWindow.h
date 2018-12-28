@@ -40,6 +40,8 @@ private:
      */
     void createMenuOption(QMenu *menu, QString name, const char *slot);
 
+//    void readJsonDocument(QString filename);
+
 private slots:
     /**
      * Callback function that will open a Dialog to allow user input for files

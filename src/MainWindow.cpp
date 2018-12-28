@@ -2,6 +2,7 @@
 #include "MainWindow.h"
 #include <QFileDialog>
 #include <iostream>
+#include "json/DESFile.h"
 
 MainWindow::MainWindow()
 {
@@ -59,6 +60,11 @@ void MainWindow::onFileOpen()
 
         /// process this file
 
+//        DESFile desFile = DESFile(fd.selectedFiles().at(0));
+//        desFile.read();
+
+//        readJsonDocument(fd.selectedFiles().at(0));
+
     }
 
 }
@@ -67,3 +73,46 @@ void MainWindow::onAboutOpen()
 {
     /// open a dialog that prints out some information about our program
 }
+
+//void MainWindow::readJsonDocument(QString filename)
+//{
+//    /// Create, open, and read the file information to a variable
+//    QFile file(filename);
+//    file.open(QIODevice::ReadOnly | QIODevice::Text);
+//    QString data = file.readAll();
+//    file.close();
+//
+//    /// convert the string to a json document and get the first object {}
+//    QJsonDocument doc = QJsonDocument::fromJson(data.toUtf8());
+//    QJsonObject json = doc.object();
+//
+//    /// if the json document is valid then we should attempt to read the data that
+//    /// we are concerned with
+//
+//    if(json.isEmpty())
+//    {
+//#ifdef _DEBUG
+//        std::cout << "Failed to open the json object from file: " << filename.toStdString() << std::endl;
+//#endif
+//        return;
+//    }
+//
+//    std::map<QString, QJsonValue> json_values;
+//
+//    QStringList object_keys = json.keys();
+//    for(auto key : object_keys)
+//    {
+////        json_values[key] = json[key];
+//
+//        std::cout << "Key = " << key.toStdString() << " type = " << (int)json[key].type() << std::endl;
+//    }
+//
+//
+////    QJsonArray jsonArray = jsonObject["properties"].toArray();
+////
+////    foreach (const QJsonValue & value, jsonArray) {
+////        QJsonObject obj = value.toObject();
+////        propertyNames.append(obj["PropertyName"].toString());
+////        propertyKeys.append(obj["key"].toString());
+////    }
+//}

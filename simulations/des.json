@@ -1,15 +1,8 @@
 {
-  "QUEUE" : {
-    "Capacity": 100,
-    "Number": 1,
-    "Type": "FIFO"
-  },
-  "SERVER" : {
-    "Capacity": 3,
-    "Number": 2
-  },
-  "Event Order" : ["ARRIVAL", "D", "T"],
-  "Events" : [
+  "QUEUES": [ {"ID": 1, "CAPACITY": 100, "TYPE": "FIFO"} ],
+  "SERVERS": [ {"ID": 1, "CAPACITY": 3}, {"ID": 2, "CAPACITY": 3}],
+  "EVENT_ORDER" : ["ARRIVAL", "D", "T"],
+  "EVENTS" : [
     {"Entity": 1, "TYPE": "A", "Time": 1.3},
     {"Entity": 2, "TYPE": "A", "Time": 2.5},
     {"Entity": 3, "TYPE": "A", "Time": 4.1},

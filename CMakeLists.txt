@@ -97,6 +97,16 @@ set(DES_TOOL_SOURCES
 set(DES_TOOL_HEADERS
         ${DES_TOOL_HEADERS})
 
+
+
+foreach(f ${DES_TOOL_SOURCES})
+    message(STATUS "file='${f}'")
+endforeach()
+
+foreach(f ${DES_TOOL_HEADERS})
+    message(STATUS "file='${f}'")
+endforeach()
+
 # Add executables
 add_executable(des_tool ${DES_TOOL_SOURCES})
 
