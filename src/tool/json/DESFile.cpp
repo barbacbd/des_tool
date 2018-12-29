@@ -45,18 +45,20 @@ void DESFile::read()
         orderEvents(events, order);
     }
 
-//    QJsonValue servers = getJsonValue("SERVERS");
-//    if(servers.isArray())
-//    {
-//        createServers(servers);
-//    }
-//
-//
-//    QJsonValue queues = getJsonValue("QUEUES");
-//    if(queues.isArray())
-//    {
-//        createQueues(queues);
-//    }
+    QJsonValue servers = getJsonValue("SERVERS");
+    if(servers.isArray())
+    {
+        createServers(servers);
+    }
+
+
+    QJsonValue queues = getJsonValue("QUEUES");
+    if(queues.isArray())
+    {
+        createQueues(queues);
+    }
+
+//    simulate();
 }
 
 /**
@@ -146,6 +148,82 @@ void DESFile::orderEvents(QJsonValue events, QJsonValue order)
 //    {
 //        std::cout << e.id.toStdString() << " " << e.type << " " << e.time << std::endl;
 //    }
+}
+
+void DESFile::createServers(QJsonValue servers)
+{
+    QJsonArray server_array = servers.toArray();
+
+    foreach (const QJsonValue &value, server_array)
+    {
+        QJsonObject obj = value.toObject();
+
+        QString id;
+        int capacity = 0;
+
+        QJsonValue idValue = obj["ID"];
+        if(!idValue.isNull())
+        {
+            id = idValue.toVariant().toString();
+        }
+
+        /// There is a toInt(), but let's be safe anc convert to a variant then try the int conversion
+        QJsonValue capValue = obj["CAPACITY"];
+        if(!capValue.isNull())
+        {
+            capacity = capValue.toVariant().toInt();
+        }
+
+        /// check to make sure the server id does not exist ???
+        m_servers.push_back({id, capacity});
+    }
+}
+
+void DESFile::createQueues(QJsonValue queues)
+{
+    QJsonArray queue_array = queues.toArray();
+
+    foreach (const QJsonValue &value, queue_array)
+    {
+        QJsonObject obj = value.toObject();
+
+        QString id;
+        int capacity = 0;
+        int type;
+
+        QJsonValue idValue = obj["ID"];
+        if(!idValue.isNull())
+        {
+            id = idValue.toVariant().toString();
+        }
+
+        /// There is a toInt(), but let's be safe anc convert to a variant then try the int conversion
+        QJsonValue capValue = obj["CAPACITY"];
+        if(!capValue.isNull())
+        {
+            capacity = capValue.toVariant().toInt();
+        }
+
+        QJsonValue typeValue = obj["TYPE"];
+        if(typeValue.isString())
+        {
+            QString str = typeValue.toString();
+
+            if(boost::iequals(str.toStdString(), "FIFO"))
+            {
+                type = FIFO;
+            }
+            else
+            {
+                type = LIFO;
+            }
+        }
+
+        Container c = {id, capacity};
+
+        /// check to make sure the server id does not exist ???
+        m_queues.push_back({c, type});
+    }
 }
 
 bool DESFile::compareEvents(const Event &a, const Event &b)

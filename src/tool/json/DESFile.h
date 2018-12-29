@@ -15,19 +15,12 @@
 #include <QFile>
 #include <QJsonArray>
 
-enum EVENT_TYPE
-{
-    ARRIVAL,
-    DEPARTURE,
-    TERMINATE
-};
+enum EVENT_TYPE { ARRIVAL, DEPARTURE, TERMINATE };
+enum QUEUE_TYPE { FIFO, LIFO };
 
-struct Event
-{
-    QString id;
-    int type;
-    double time;
-};
+struct Event { QString id; int type; double time; };
+struct Container { QString id; int capacity; };
+struct Queue { Container container; int type; };
 
 class DESFile
 {
@@ -65,19 +58,22 @@ public:
 private:
 
     /**
-     *
-     * @param events
-     * @param order
+     * Create all events from the list in the json file.
+     * @param events - Json object holding the vents
+     * @param order - Json object holding the priority of events
      */
     void orderEvents(QJsonValue events, QJsonValue order);
 
     /**
-     *
-     * @param a
-     * @param b
-     * @return
+     * @param a - First event
+     * @param b - Second event
+     * @return - return true when event_a.time < event_b.time and when event_a.type < event_b.type
      */
     bool compareEvents(const Event &a, const Event &b);
+
+    void createServers(QJsonValue servers);
+
+    void createQueues(QJsonValue queues);
 
 private:
     QJsonDocument m_doc;
@@ -87,6 +83,8 @@ private:
     std::map<QChar, int> m_event_types;
 
     std::vector<Event> m_events;
+    std::vector<Container> m_servers;
+    std::vector<Queue> m_queues;
 
 };
 
