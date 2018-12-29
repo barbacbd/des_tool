@@ -22,6 +22,13 @@ enum EVENT_TYPE
     TERMINATE
 };
 
+struct Event
+{
+    QString id;
+    int type;
+    double time;
+};
+
 class DESFile
 {
 public:
@@ -64,12 +71,22 @@ private:
      */
     void orderEvents(QJsonValue events, QJsonValue order);
 
+    /**
+     *
+     * @param a
+     * @param b
+     * @return
+     */
+    bool compareEvents(const Event &a, const Event &b);
+
 private:
     QJsonDocument m_doc;
 
     QString m_filename;
 
-    std::map<int, int> m_event_types;
+    std::map<QChar, int> m_event_types;
+
+    std::vector<Event> m_events;
 
 };
 
