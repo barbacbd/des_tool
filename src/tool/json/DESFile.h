@@ -18,9 +18,16 @@
 enum EVENT_TYPE { ARRIVAL, DEPARTURE, TERMINATE };
 enum QUEUE_TYPE { FIFO, LIFO };
 
-struct Event { QString id; int type; double time; };
+//struct Event { QString id; int type; double time; };
+struct Event { QString id; QChar type; double time; };
 struct Container { QString id; int capacity; };
 struct Queue { Container container; int type; };
+struct Record {
+    double time;
+    std::vector<Event> events;
+    std::vector<Container> servers;
+    std::vector<Queue> queues;
+};
 
 class DESFile
 {
@@ -71,9 +78,24 @@ private:
      */
     bool compareEvents(const Event &a, const Event &b);
 
+    /**
+     * Create all servers from the DES File
+     * @param servers - Json Value representing the servers (should be a QJsonArray)
+     */
     void createServers(QJsonValue servers);
 
+    /**
+     * Create all queues from the DES File
+     * @param queues - Json Value representing the queues (should be a QJsonArray)
+     */
     void createQueues(QJsonValue queues);
+
+    /**
+     * Run the simulation given all DES information that we have read in.
+     * To avoid any user issues, this function will only be called at the end
+     * of read().
+     */
+    void simulate();
 
 private:
     QJsonDocument m_doc;

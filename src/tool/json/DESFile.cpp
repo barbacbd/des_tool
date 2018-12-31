@@ -51,14 +51,21 @@ void DESFile::read()
         createServers(servers);
     }
 
-
     QJsonValue queues = getJsonValue("QUEUES");
     if(queues.isArray())
     {
         createQueues(queues);
     }
 
-//    simulate();
+
+    if(m_servers.empty() || m_events.empty() || m_queues.empty())
+    {
+        /// don't try to simulate if there is missing information
+        return;
+    }
+
+    /// run the simualation now that all information has been read in.
+    simulate();
 }
 
 /**
@@ -130,12 +137,13 @@ void DESFile::orderEvents(QJsonValue events, QJsonValue order)
         QJsonValue typeValue = obj["TYPE"];
         if(typeValue.isString())
         {
-            QString str = typeValue.toString();
-            std::map<QChar, int>::iterator it = m_event_types.find(str.at(0));
-            if(it != m_event_types.end())
-            {
-                type = it->second;
-            }
+//            QString str = typeValue.toString();
+//            std::map<QChar, int>::iterator it = m_event_types.find(str.at(0));
+//            if(it != m_event_types.end())
+//            {
+//                type = it->second;
+//            }
+            type = typeValue.toString().at(0);
         }
 
         m_events.push_back({entity, type, time});
@@ -143,11 +151,6 @@ void DESFile::orderEvents(QJsonValue events, QJsonValue order)
 
     /// sort the events based on time and type
     std::sort(m_events.begin(), m_events.end(), std::bind(&DESFile::compareEvents, this, std::placeholders::_1, std::placeholders::_2));
-
-//    for(Event e : m_events)
-//    {
-//        std::cout << e.id.toStdString() << " " << e.type << " " << e.time << std::endl;
-//    }
 }
 
 void DESFile::createServers(QJsonValue servers)
@@ -234,7 +237,10 @@ bool DESFile::compareEvents(const Event &a, const Event &b)
     }
     else if(a.time == b.time)
     {
-        return a.type <= b.type;
+        int type_a = m_event_types[a.type];
+        int type_b = m_event_types[b.type];
+
+        return type_a <= type_b;
     }
     else
     {
@@ -242,5 +248,32 @@ bool DESFile::compareEvents(const Event &a, const Event &b)
     }
 }
 
-/// function to create servers
-/// function to create queues
+void DESFile::simulate()
+{
+    /// create Records that can be used as a step in time that will
+    /// show queue and server state information
+    for(std::vector<Event>::iterator it = m_events.begin(); it != m_events.end(); it++)
+    {
+
+        if((*it).type == 'A')
+        {
+
+
+            /// find the minimum queue
+
+            /// if no server was available, add the event to a queue if possible, otherwise just discard the event
+
+        }
+        else if((*it).type == 'D')
+        {
+            /// search for the event in the queues, if exists, then remove it
+            /// and add the event to a server
+        }
+        else if((*it).type == 'T')
+        {
+            break;
+        }
+
+    }
+
+}
