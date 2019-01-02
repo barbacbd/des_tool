@@ -137,12 +137,6 @@ void DESFile::orderEvents(QJsonValue events, QJsonValue order)
         QJsonValue typeValue = obj["TYPE"];
         if(typeValue.isString())
         {
-//            QString str = typeValue.toString();
-//            std::map<QChar, int>::iterator it = m_event_types.find(str.at(0));
-//            if(it != m_event_types.end())
-//            {
-//                type = it->second;
-//            }
             type = typeValue.toString().at(0);
         }
 
@@ -178,7 +172,8 @@ void DESFile::createServers(QJsonValue servers)
         }
 
         /// check to make sure the server id does not exist ???
-        m_servers.push_back({id, capacity});
+        std::vector<Event> events;
+        m_servers.push_back({id, capacity, events});
     }
 }
 
@@ -222,7 +217,8 @@ void DESFile::createQueues(QJsonValue queues)
             }
         }
 
-        Container c = {id, capacity};
+        std::vector<Event> events;
+        Container c = {id, capacity, events};
 
         /// check to make sure the server id does not exist ???
         m_queues.push_back({c, type});
@@ -257,7 +253,7 @@ void DESFile::simulate()
 
         if((*it).type == 'A')
         {
-
+            std::cout << "ARRIVAL" << std::endl;
 
             /// find the minimum queue
 
@@ -266,11 +262,14 @@ void DESFile::simulate()
         }
         else if((*it).type == 'D')
         {
+            std::cout << "DEPARTURE" << std::endl;
+
             /// search for the event in the queues, if exists, then remove it
             /// and add the event to a server
         }
         else if((*it).type == 'T')
         {
+            std::cout << "TERMINATE" << std::endl;
             break;
         }
 

@@ -19,7 +19,7 @@ enum EVENT_TYPE { ARRIVAL, DEPARTURE, TERMINATE };
 enum QUEUE_TYPE { FIFO, LIFO };
 
 struct Event { QString id; QChar type; double time; };
-struct Container { QString id; int capacity; };
+struct Container { QString id; int capacity; std::vector<Event> events; };
 struct Queue { Container container; int type; };
 struct Record {
     double time;
