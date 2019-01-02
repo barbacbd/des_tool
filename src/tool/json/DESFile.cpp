@@ -120,7 +120,7 @@ void DESFile::orderEvents(QJsonValue events, QJsonValue order)
         /// get the entity number [if exists], event type, and time
         QString entity = "";
         double time;
-        int type;
+        QChar type;
 
         QJsonValue entityValue = obj["ENTITY"];
         if(!entityValue.isNull())

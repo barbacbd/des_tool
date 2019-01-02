@@ -18,7 +18,6 @@
 enum EVENT_TYPE { ARRIVAL, DEPARTURE, TERMINATE };
 enum QUEUE_TYPE { FIFO, LIFO };
 
-//struct Event { QString id; int type; double time; };
 struct Event { QString id; QChar type; double time; };
 struct Container { QString id; int capacity; };
 struct Queue { Container container; int type; };
