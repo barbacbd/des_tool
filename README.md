@@ -26,10 +26,7 @@ The src subdirectory contains the newer version of the code. The new code is bas
 
 In order to build this version of the code
 
-```mkdir build;```
-```cd build;```
-```cmake ..;```
-```make;```
+```mkdir build; cd build; cmake ..; make;```
 
 > This is not a library so there is no need to install any of the files sudo a make install.
 
