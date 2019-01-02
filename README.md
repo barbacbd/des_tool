@@ -16,6 +16,10 @@ of the project was the prototype, but a newer version has been constructed using
 
 ### Simulation Files
 
+```
+opengl/test.txt
+```
+
 ## Qt
 
 The src subdirectory contains the newer version of the code. The new code is based off of Qt. 
@@ -33,10 +37,13 @@ The name of the executable is des_tool.
 
 ### Simulation Files
 
-
+```
+simulations/des.json
+```
 
 ## Future Work
 
-- read in JSON files
-- search the json file for objects where the name is not case sensitive
-- convert all structs to objects
+- Search the json file for objects where the name is not case sensitive
+- Run the Simulation
+- Create a record for each discrete time event and what happened and the state of all parts of the simulation
+- Output a statistical record for the simulation
