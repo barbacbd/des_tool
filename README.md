@@ -17,7 +17,7 @@ of the project was the prototype, but a newer version has been constructed using
 ### Simulation Files
 
 ```
-opengl/test.txt
+simulation/des.txt
 ```
 
 
