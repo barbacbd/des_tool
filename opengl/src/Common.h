@@ -8,15 +8,15 @@
 #define _DEBUG_PRG
 #define FULLSCREEN_MODE
 
-/* 
-* time value can be either float or int 
-*/
+/**
+ * time value can be either float or int
+ */
 typedef float prec;
 
-/* 
-* Enumeration for the Type of event that has
-* been activated in the system. 
-*/
+/**
+ * Enumeration for the Type of event that has
+ * been activated in the system.
+ */
 enum ETYPE
 {
 	ARRIVAL,
@@ -24,23 +24,23 @@ enum ETYPE
 	TERMINATE
 };
 
-/*
-* Enumeration for the Type of queue(s) that the user
-* wants the system to contain. Either First-in-First-out
-* or Last-in-First-Out.
-*/
+/**
+ * Enumeration for the Type of queue(s) that the user
+ * wants the system to contain. Either First-in-First-out
+ * or Last-in-First-Out.
+ */
 enum QTYPE
 {
 	FIFO,
 	LIFO
 };
 
-/* 
-* The structure containing all information necessary to
-* be an event. The information will be processed throughout
-* the simulation. This structure will contain the main
-* information entered by the user into the text file(s).
-*/
+/**
+ * The structure containing all information necessary to
+ * be an event. The information will be processed throughout
+ * the simulation. This structure will contain the main
+ * information entered by the user into the text file(s).
+ */
 struct Event
 {
 	int id;
@@ -50,11 +50,11 @@ struct Event
 	bool occurred;
 };
 
-/*
-* The Queue struct will hold information entered by the user,
-* and it will contain a list of all Events that are waiting 
-* to proceed to the server.
-*/
+/**
+ * The Queue struct will hold information entered by the user,
+ * and it will contain a list of all Events that are waiting
+ * to proceed to the server.
+ */
 struct Queue
 {
 	int capacity;
@@ -63,11 +63,11 @@ struct Queue
 	std::vector<struct Event> events;
 };
 
-/*
-* The Server struct will hold information entered by the user,
-* and it will contain a [list] of all events that are being
-* served. 
-*/
+/**
+ * The Server struct will hold information entered by the user,
+ * and it will contain a [list] of all events that are being
+ * served.
+ */
 struct Server
 {
 	int capacity;
@@ -75,21 +75,21 @@ struct Server
 	std::vector<struct Event> events;
 };
 
-/*
-* The EventHandler struct will dictate the flow of the
-* simulation. All Events will be created and added to the
-* struct, then the struct will pass the events onto the
-* Queue when it is time for the next event to occur.
-*/
+/**
+ * The EventHandler struct will dictate the flow of the
+ * simulation. All Events will be created and added to the
+ * struct, then the struct will pass the events onto the
+ * Queue when it is time for the next event to occur.
+ */
 struct EventHandler
 {
 	std::vector<struct Event> events;
 };
 
-/*
-* The Record struct will serve as a snapshot of the
-* system at the time -> time
-*/
+/**
+ * The Record struct will serve as a snapshot of the
+ * system at the time -> time
+ */
 struct Record
 {
 	int id; 
@@ -99,9 +99,9 @@ struct Record
 	std::vector<struct Server> servers;
 };
 
-/*
-* Common structure to hold statistical information
-*/
+/**
+ * Common structure to hold statistical information
+ */
 struct statistics
 {
 	std::vector<prec> inter_arrivals;
@@ -116,9 +116,9 @@ struct statistics
 	float percent_util; // percentage of time utilization by servers
 };
 
-/* 
-* Struct to hold all information about the system
-*/
+/**
+ * Struct to hold all information about the system
+ */
 struct System_Information
 {
 	int num_queues;
@@ -141,8 +141,10 @@ struct System_Information
 	statistics stats;
 };
 
-/* Simple color structure - used to control and 
-* alter the color of buttons */
+/**
+ * Simple color structure - used to control and
+ * alter the color of buttons
+ */
 struct color
 {
 	float r;
@@ -150,9 +152,9 @@ struct color
 	float b;
 };
 
-/*
-* Common structure to create all of the buttons for the display
-*/
+/**
+ * Common structure to create all of the buttons for the display
+ */
 struct button
 {
 	float xmin;
@@ -165,9 +167,9 @@ struct button
 
 
 
-/*
-* Common structure to draw an up or down arrow
-*/
+/**
+ * Common structure to draw an up or down arrow
+ */
 struct arrow
 {
 	button b;
