@@ -29,7 +29,7 @@ int main(int argc, char **argv)
         QTextStream ts(&f);
         app.setStyleSheet(ts.readAll());
     }
-    
+
     return app.exec();
 }
 

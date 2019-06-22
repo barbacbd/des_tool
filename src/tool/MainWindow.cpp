@@ -51,8 +51,9 @@ void MainWindow::onFileOpen()
 {
     QFileDialog fd(this);
 
-    /// if we want to, we could set a filter on the types of files that we want
-    /// the user to bring into the program here
+    /// set the files to only be txt or json files since the
+    /// ConfigCreator will only create these types of files
+    fd.setNameFilter("*.txt *.json");
 
     if(QFileDialog::Accepted == fd.exec())
     {

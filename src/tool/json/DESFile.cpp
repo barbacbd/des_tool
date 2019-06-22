@@ -32,11 +32,34 @@ void DESFile::read()
     /// Create, open, and read the file information to a variable
     QFile file(m_filename);
     file.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString data = file.readAll();
+    QString data=file.readAll();
     file.close();
+
+
+    if(m_filename.endsWith(".txt"))
+    {
+        parseTXT(data);
+    }
+    else if(m_filename.endsWith(".json"))
+    {
+        parseJSON(data);
+    }
+}
+
+void DESFile::parseTXT(QString data)
+{
+
+}
+
+void DESFile::parseJSON(QString data)
+{
+
+    std::cout << "MADE IT HERE " << std::endl;
 
     /// convert the string to a json document and get the first object {}
     m_doc = QJsonDocument::fromJson(data.toUtf8());
+
+    std::cout << data.toStdString() << std::endl;
 
     QJsonValue events = getJsonValue("EVENTS");
     QJsonValue order = getJsonValue("EVENT_ORDER");
@@ -248,10 +271,10 @@ void DESFile::simulate()
 {
     /// create Records that can be used as a step in time that will
     /// show queue and server state information
-    for(std::vector<Event>::iterator it = m_events.begin(); it != m_events.end(); it++)
+    for( auto& event : m_events)
     {
 
-        if((*it).type == 'A')
+        if(event.type == 'A')
         {
             std::cout << "ARRIVAL" << std::endl;
 
@@ -260,14 +283,14 @@ void DESFile::simulate()
             /// if no server was available, add the event to a queue if possible, otherwise just discard the event
 
         }
-        else if((*it).type == 'D')
+        else if(event.type == 'D')
         {
             std::cout << "DEPARTURE" << std::endl;
 
             /// search for the event in the queues, if exists, then remove it
             /// and add the event to a server
         }
-        else if((*it).type == 'T')
+        else if(event.type == 'T')
         {
             std::cout << "TERMINATE" << std::endl;
             break;

@@ -64,6 +64,18 @@ public:
 private:
 
     /**
+     * Attempt to parse the file if it is a txt file.
+     * @param data - data contained in the .txt file
+     */
+    void parseTXT(QString data);
+
+    /**
+     * Attempt to parse the file if is a json file
+     * @param data - data contained in the .json file
+     */
+    void parseJSON(QString data);
+
+    /**
      * Create all events from the list in the json file.
      * @param events - Json object holding the vents
      * @param order - Json object holding the priority of events
