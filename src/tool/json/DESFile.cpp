@@ -6,7 +6,29 @@
 
 DESFile::DESFile(QString filename)
 {
-    setFilename(filename);
+    /// NOTE: if filename is empty is becomes pretty much useless, the use will
+    /// have to create a new file and read from it.
+
+    if(!filename.isEmpty())
+    {
+        m_filename = filename;
+
+        /// select the filetype for later so it is now an easier comparison than text
+        if(m_filename.endsWith(".txt"))
+        {
+            m_file_type = TXT;
+        }
+        else if(m_filename.endsWith(".json"))
+        {
+            m_file_type = JSON;
+        }
+        else
+        {
+            m_file_type = UNSUPPORTED;
+        }
+
+        read();
+    }
 }
 
 DESFile::~DESFile()
@@ -14,20 +36,9 @@ DESFile::~DESFile()
     /// remove anything created in this class
 }
 
-void DESFile::setFilename(QString filename)
-{
-    if(!filename.isEmpty())
-    {
-        m_filename = filename;
-    }
-}
-
 void DESFile::read()
 {
-    if(m_filename.isEmpty())
-    {
-        return;
-    }
+    /// NOTE: filename cannot be empty here, so we are not going to check
 
     /// Create, open, and read the file information to a variable
     QFile file(m_filename);
@@ -36,13 +47,17 @@ void DESFile::read()
     file.close();
 
 
-    if(m_filename.endsWith(".txt"))
+    switch(m_file_type)
     {
-        parseTXT(data);
-    }
-    else if(m_filename.endsWith(".json"))
-    {
-        parseJSON(data);
+        case TXT: parseTXT(data); break;
+        case JSON: parseJSON(data); break;
+
+        /// add any new file type here
+
+        case UNSUPPORTED:
+        default:
+            /// do nothing, but adding a return in case code is added below or outside of the switch
+            return;
     }
 }
 
@@ -53,13 +68,8 @@ void DESFile::parseTXT(QString data)
 
 void DESFile::parseJSON(QString data)
 {
-
-    std::cout << "MADE IT HERE " << std::endl;
-
     /// convert the string to a json document and get the first object {}
     m_doc = QJsonDocument::fromJson(data.toUtf8());
-
-    std::cout << data.toStdString() << std::endl;
 
     QJsonValue events = getJsonValue("EVENTS");
     QJsonValue order = getJsonValue("EVENT_ORDER");
@@ -78,13 +88,6 @@ void DESFile::parseJSON(QString data)
     if(queues.isArray())
     {
         createQueues(queues);
-    }
-
-
-    if(m_servers.empty() || m_events.empty() || m_queues.empty())
-    {
-        /// don't try to simulate if there is missing information
-        return;
     }
 
     /// run the simualation now that all information has been read in.
@@ -118,21 +121,26 @@ void DESFile::orderEvents(QJsonValue events, QJsonValue order)
     int pos = 0;
     for(QJsonArray::iterator it = order_array.begin(); it != order_array.end(); it++, pos++)
     {
-        std::string type = (*it).toString().toStdString();
+        QString type = (*it).toString();
 
         /// set the priority for each type of EVENT
-        if(boost::iequals(type, "ARRIVAL") || boost::iequals(type, "A"))
+        /// BUT ... DO NOT set the value more than once
+        /// i.e Arrival, D, TERMINATE , ARRIVAL would yield [A, D, T]
+        if(type.startsWith('A', Qt::CaseInsensitive) && m_event_types.find(ARRIVAL) == m_event_types.end())
         {
-            m_event_types['A'] = pos;
+            m_event_types[ARRIVAL] = pos;
         }
-        else if(boost::iequals(type, "DEPARTURE") || boost::iequals(type, "D"))
+        else if(type.startsWith('D', Qt::CaseInsensitive) && m_event_types.find(DEPARTURE) == m_event_types.end())
         {
-            m_event_types['D'] = pos;
+            m_event_types[DEPARTURE] = pos;
         }
-        else if(boost::iequals(type, "TERMINATE") || boost::iequals(type, "T"))
+        else if(type.startsWith('T', Qt::CaseInsensitive) && m_event_types.find(TERMINATE) == m_event_types.end())
         {
-            m_event_types['T'] = pos;
+            m_event_types[TERMINATE] = pos;
         }
+
+        /// New Event Types can be added here, but generally DES is only worried about A,D,T
+
     }
 
     /// create the list of all events
@@ -143,12 +151,12 @@ void DESFile::orderEvents(QJsonValue events, QJsonValue order)
         /// get the entity number [if exists], event type, and time
         QString entity = "";
         double time;
-        QChar type;
+        EVENT_TYPE type;
 
         QJsonValue entityValue = obj["ENTITY"];
         if(!entityValue.isNull())
         {
-            entity = entityValue.toVariant().toString();
+            entity=entityValue.toVariant().toString();
         }
 
         QJsonValue timeValue = obj["TIME"];
@@ -156,18 +164,42 @@ void DESFile::orderEvents(QJsonValue events, QJsonValue order)
         {
             time = timeValue.toDouble();
         }
+        else
+        {
+            continue;
+        }
 
         QJsonValue typeValue = obj["TYPE"];
         if(typeValue.isString())
         {
-            type = typeValue.toString().at(0);
+            if(typeValue.toString().startsWith('A', Qt::CaseInsensitive))
+            {
+                type = ARRIVAL;
+            }
+            else if(typeValue.toString().startsWith('D', Qt::CaseInsensitive))
+            {
+                type = DEPARTURE;
+            }
+            else if(typeValue.toString().startsWith('T', Qt::CaseInsensitive))
+            {
+                type = TERMINATE;
+            }
+            else
+            {
+                continue;
+            }
+        }
+        else
+        {
+            continue;
         }
 
         m_events.push_back({entity, type, time});
     }
 
     /// sort the events based on time and type
-    std::sort(m_events.begin(), m_events.end(), std::bind(&DESFile::compareEvents, this, std::placeholders::_1, std::placeholders::_2));
+    std::sort(m_events.begin(), m_events.end(),
+            std::bind(&DESFile::compareEvents, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 void DESFile::createServers(QJsonValue servers)
@@ -217,6 +249,10 @@ void DESFile::createQueues(QJsonValue queues)
         {
             id = idValue.toVariant().toString();
         }
+        else
+        {
+            continue;
+        }
 
         /// There is a toInt(), but let's be safe anc convert to a variant then try the int conversion
         QJsonValue capValue = obj["CAPACITY"];
@@ -226,11 +262,10 @@ void DESFile::createQueues(QJsonValue queues)
         }
 
         QJsonValue typeValue = obj["TYPE"];
-        if(typeValue.isString())
-        {
+        if(typeValue.isString()) {
             QString str = typeValue.toString();
 
-            if(boost::iequals(str.toStdString(), "FIFO"))
+            if(str.compare("FIFO", Qt::CaseInsensitive))
             {
                 type = FIFO;
             }
@@ -238,6 +273,10 @@ void DESFile::createQueues(QJsonValue queues)
             {
                 type = LIFO;
             }
+        }
+        else
+        {
+            continue;
         }
 
         std::vector<Event> events;
@@ -269,12 +308,18 @@ bool DESFile::compareEvents(const Event &a, const Event &b)
 
 void DESFile::simulate()
 {
+    if(m_servers.empty() || m_events.empty() || m_queues.empty())
+    {
+        /// don't try to simulate if there is missing information
+        return;
+    }
+
     /// create Records that can be used as a step in time that will
     /// show queue and server state information
     for( auto& event : m_events)
     {
 
-        if(event.type == 'A')
+        if(event.type == ARRIVAL)
         {
             std::cout << "ARRIVAL" << std::endl;
 
@@ -283,14 +328,14 @@ void DESFile::simulate()
             /// if no server was available, add the event to a queue if possible, otherwise just discard the event
 
         }
-        else if(event.type == 'D')
+        else if(event.type == DEPARTURE)
         {
             std::cout << "DEPARTURE" << std::endl;
 
             /// search for the event in the queues, if exists, then remove it
             /// and add the event to a server
         }
-        else if(event.type == 'T')
+        else if(event.type == TERMINATE)
         {
             std::cout << "TERMINATE" << std::endl;
             break;

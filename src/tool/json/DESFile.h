@@ -17,8 +17,9 @@
 
 enum EVENT_TYPE { ARRIVAL, DEPARTURE, TERMINATE };
 enum QUEUE_TYPE { FIFO, LIFO };
+enum FILE_TYPE { UNSUPPORTED, TXT, JSON};
 
-struct Event { QString id; QChar type; double time; };
+struct Event { QString id; EVENT_TYPE type; double time; };
 struct Container { QString id; int capacity; std::vector<Event> events; };
 struct Queue { Container container; int type; };
 struct Record {
@@ -41,12 +42,9 @@ public:
      */
     ~DESFile();
 
-    /**
-     * If the filename was empty, then use this filename. The member function will NOT allow the user to set
-     * a new filename.
-     * @param filename - filename to use
-     */
-    void setFilename(QString filename);
+
+
+private:
 
     /**
      * If the filename is set, open the file, read all contents and store the
@@ -60,9 +58,6 @@ public:
      * @return QJsonValue, empty value if the document is empty
      */
     QJsonValue getJsonValue(QString name);
-
-private:
-
     /**
      * Attempt to parse the file if it is a txt file.
      * @param data - data contained in the .txt file
@@ -113,11 +108,13 @@ private:
 
     QString m_filename;
 
-    std::map<QChar, int> m_event_types;
+    std::map<EVENT_TYPE , int> m_event_types;
 
     std::vector<Event> m_events;
     std::vector<Container> m_servers;
     std::vector<Queue> m_queues;
+
+    FILE_TYPE m_file_type;
 
 };
 
