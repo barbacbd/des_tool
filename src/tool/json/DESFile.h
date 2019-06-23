@@ -14,28 +14,29 @@
 #include <QStringList>
 #include <QFile>
 #include <QJsonArray>
+#include "../components/Components.h"
 
-enum EVENT_TYPE { ARRIVAL, DEPARTURE, TERMINATE };
-enum QUEUE_TYPE { FIFO, LIFO };
+//enum EVENT_TYPE { ARRIVAL, DEPARTURE, TERMINATE };
+//enum QUEUE_TYPE { FIFO, LIFO };
 enum FILE_TYPE { UNSUPPORTED, TXT, JSON};
 
-struct Event { QString id; EVENT_TYPE type; double time; };
-struct Container { QString id; int capacity; std::vector<Event> events; };
-struct Queue { Container container; int type; };
-struct Record {
-    double time;
-    std::vector<Event> events;
-    std::vector<Container> servers;
-    std::vector<Queue> queues;
-};
+//struct Event { QString id; EVENT_TYPE type; double time; };
+//struct Container { QString id; int capacity; std::vector<Event> events; };
+//struct Queue { Container container; int type; };
+//struct Record {
+//    double time;
+//    std::vector<Event> events;
+//    std::vector<Container> servers;
+//    std::vector<Queue> queues;
+//};
 
 class DESFile
 {
 public:
     /**
-     * @param filename [optional] - name of the file that will be parsed if it is not empty
+     * @param filename - name of the file that will be parsed if it is not empty
      */
-    DESFile(QString filename = "");
+    DESFile(QString filename);
 
     /**
      * Destructor for this file
@@ -82,7 +83,7 @@ private:
      * @param b - Second event
      * @return - return true when event_a.time < event_b.time and when event_a.type < event_b.type
      */
-    bool compareEvents(const Event &a, const Event &b);
+    bool compareEvents(const Event &a, const Event &b) ;
 
     /**
      * Create all servers from the DES File
@@ -112,7 +113,7 @@ private:
 
     std::vector<Event> m_events;
     std::vector<Container> m_servers;
-    std::vector<Queue> m_queues;
+    std::vector<DESQueue> m_queues;
 
     FILE_TYPE m_file_type;
 

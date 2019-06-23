@@ -194,7 +194,7 @@ void DESFile::orderEvents(QJsonValue events, QJsonValue order)
             continue;
         }
 
-        m_events.push_back({entity, type, time});
+        m_events.push_back(Event(entity, type, time));
     }
 
     /// sort the events based on time and type
@@ -228,7 +228,7 @@ void DESFile::createServers(QJsonValue servers)
 
         /// check to make sure the server id does not exist ???
         std::vector<Event> events;
-        m_servers.push_back({id, capacity, events});
+        m_servers.emplace_back(Container(id, capacity, events));
     }
 }
 
@@ -242,7 +242,7 @@ void DESFile::createQueues(QJsonValue queues)
 
         QString id;
         int capacity = 0;
-        int type;
+        QUEUE_TYPE type;
 
         QJsonValue idValue = obj["ID"];
         if(!idValue.isNull())
@@ -280,25 +280,24 @@ void DESFile::createQueues(QJsonValue queues)
         }
 
         std::vector<Event> events;
-        Container c = {id, capacity, events};
 
         /// check to make sure the server id does not exist ???
-        m_queues.push_back({c, type});
+        m_queues.emplace_back(DESQueue(id, capacity, events, type));
     }
 }
 
 bool DESFile::compareEvents(const Event &a, const Event &b)
 {
-    if(a.time < b.time)
+    double a_time = a.getTime();
+    double b_time = b.getTime();
+
+    if(a_time < b_time)
     {
         return true;
     }
-    else if(a.time == b.time)
+    else if(a_time == b_time)
     {
-        int type_a = m_event_types[a.type];
-        int type_b = m_event_types[b.type];
-
-        return type_a <= type_b;
+        return m_event_types[a.getType()] <= m_event_types[b.getType()];
     }
     else
     {
@@ -319,25 +318,30 @@ void DESFile::simulate()
     for( auto& event : m_events)
     {
 
-        if(event.type == ARRIVAL)
+        switch(event.getType())
         {
-            std::cout << "ARRIVAL" << std::endl;
+            case ARRIVAL:
+            {
+                /// find the minimum queue
 
-            /// find the minimum queue
+                /// if no server was available, add the event to a queue if possible, otherwise just discard the event
 
-            /// if no server was available, add the event to a queue if possible, otherwise just discard the event
+                std::cout << event.toString() << std::endl;
+            }
+            break;
 
-        }
-        else if(event.type == DEPARTURE)
-        {
-            std::cout << "DEPARTURE" << std::endl;
+            case DEPARTURE:
+            {
+                std::cout << event.toString() << std::endl;
+                /// search for the event in the queues, if exists, then remove it
+                /// and add the event to a server
+            }
+            break;
 
-            /// search for the event in the queues, if exists, then remove it
-            /// and add the event to a server
-        }
-        else if(event.type == TERMINATE)
-        {
-            std::cout << "TERMINATE" << std::endl;
+            case TERMINATE:
+            {
+                std::cout << event.toString() << std::endl;
+            }
             break;
         }
 
