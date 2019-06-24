@@ -16,19 +16,12 @@
 #include <QJsonArray>
 #include "../components/Components.h"
 
-//enum EVENT_TYPE { ARRIVAL, DEPARTURE, TERMINATE };
-//enum QUEUE_TYPE { FIFO, LIFO };
-enum FILE_TYPE { UNSUPPORTED, TXT, JSON};
-
-//struct Event { QString id; EVENT_TYPE type; double time; };
-//struct Container { QString id; int capacity; std::vector<Event> events; };
-//struct Queue { Container container; int type; };
-//struct Record {
-//    double time;
-//    std::vector<Event> events;
-//    std::vector<Container> servers;
-//    std::vector<Queue> queues;
-//};
+enum FILE_TYPE
+{
+    UNSUPPORTED,
+    TXT,
+    JSON
+};
 
 class DESFile
 {
@@ -104,6 +97,14 @@ private:
      */
     void simulate();
 
+    /**
+     * Function to find the minimum container from the list provided. We should be able to
+     * pass both of our lists for queues and servers since they are both technically containers.
+     * @param vec - vector of containers to find the minimum in
+     * @return - index of the container with the minimum capacity, -1 if there is a failure.
+     */
+    int findMinAvailableContainer(std::vector<Container*> vec);
+
 private:
     QJsonDocument m_doc;
 
@@ -112,8 +113,8 @@ private:
     std::map<EVENT_TYPE , int> m_event_types;
 
     std::vector<Event> m_events;
-    std::vector<Container> m_servers;
-    std::vector<DESQueue> m_queues;
+    std::vector<Container*> m_servers;
+    std::vector<Container*> m_queues;
 
     FILE_TYPE m_file_type;
 

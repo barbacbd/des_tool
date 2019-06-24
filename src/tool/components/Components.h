@@ -79,6 +79,17 @@ public:
     int getCapacity() { return m_capacity; }
     std::vector<Event> getEvents() { return m_events; }
 
+    virtual bool addEvent(Event &e)
+    {
+        if(m_events.size() < m_capacity)
+        {
+            m_events.emplace_back(e);
+            return true;
+        }
+
+        return false;
+    }
+
 protected:
     QString m_id;
     int m_capacity;
@@ -102,6 +113,21 @@ public:
 
     /// public getter not setters
     QUEUE_TYPE getType() { return m_type; }
+
+    bool addEvent(Event &e)
+    {
+        if(m_events.size() < m_capacity)
+        {
+            if (m_type == FIFO)
+            {
+                m_events.emplace_back(e);
+            }
+            else
+            {
+                m_events.emplace(m_events.begin(), e);
+            }
+        }
+    }
 
 protected:
     QUEUE_TYPE m_type;

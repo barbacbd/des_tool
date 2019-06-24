@@ -3,6 +3,7 @@
 #include <boost/algorithm/string.hpp>
 #include <functional>
 #include <QVariant>
+#include <limits>
 
 DESFile::DESFile(QString filename)
 {
@@ -33,7 +34,15 @@ DESFile::DESFile(QString filename)
 
 DESFile::~DESFile()
 {
-    /// remove anything created in this class
+    for(auto &i : m_queues)
+    {
+        delete i;
+    }
+
+    for(auto &i : m_servers)
+    {
+        delete i;
+    }
 }
 
 void DESFile::read()
@@ -228,7 +237,7 @@ void DESFile::createServers(QJsonValue servers)
 
         /// check to make sure the server id does not exist ???
         std::vector<Event> events;
-        m_servers.emplace_back(Container(id, capacity, events));
+        m_servers.emplace_back(new Container(id, capacity, events));
     }
 }
 
@@ -282,7 +291,7 @@ void DESFile::createQueues(QJsonValue queues)
         std::vector<Event> events;
 
         /// check to make sure the server id does not exist ???
-        m_queues.emplace_back(DESQueue(id, capacity, events, type));
+        m_queues.emplace_back(new DESQueue(id, capacity, events, type));
     }
 }
 
@@ -305,6 +314,27 @@ bool DESFile::compareEvents(const Event &a, const Event &b)
     }
 }
 
+
+int DESFile::findMinAvailableContainer(std::vector<Container*> vec)
+{
+    int min_size = std::numeric_limits<int>::max();
+
+    int pos = 0;
+    int min_pos = -1;
+    for(auto &container : vec)
+    {
+        uint64_t size = container->getEvents().size();
+
+        if(size < min_size && size < container->getCapacity())
+        {
+            min_pos = pos;
+        }
+        pos ++;
+    }
+
+    return min_pos;
+}
+
 void DESFile::simulate()
 {
     if(m_servers.empty() || m_events.empty() || m_queues.empty())
@@ -322,17 +352,47 @@ void DESFile::simulate()
         {
             case ARRIVAL:
             {
-                /// find the minimum queue
+//                std::cout << event.toString() << std::endl;
 
-                /// if no server was available, add the event to a queue if possible, otherwise just discard the event
+                int min_avail_server = findMinAvailableContainer(m_servers);
+                if(min_avail_server >= 0)
+                {
+                    /// send the event straight to the server
+                    m_servers[min_avail_server]->addEvent(event);
+                }
+                else
+                {
+                    /// find the minimum queue
+                    int min_avail_queue = findMinAvailableContainer(m_queues);
+                    if(min_avail_queue >= 0)
+                    {
+                        m_queues[min_avail_queue]->addEvent(event);
+                    }
+                    else
+                    {
+                        /// discard the item ... but let's log it or at least print it out.
+                        std::cout << "EVENT Failed: " << event.toString() << std::endl;
+                    }
+                }
 
-                std::cout << event.toString() << std::endl;
+
             }
             break;
 
             case DEPARTURE:
             {
                 std::cout << event.toString() << std::endl;
+
+//                if(removeEvent(m_servers, event.getID()))
+//                {
+//                    /// Add the next event to the minimum server
+//                }
+//                else
+//                {
+//                    /// if the event is still in the queue it will be removed and logged that it wasn't able
+//                    /// to be processed ...
+//                }
+
                 /// search for the event in the queues, if exists, then remove it
                 /// and add the event to a server
             }
@@ -346,5 +406,7 @@ void DESFile::simulate()
         }
 
     }
+
+    std::cout << "Finished" << std::endl;
 
 }
