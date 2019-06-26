@@ -24,13 +24,26 @@ enum QUEUE_TYPE
 class Event
 {
 public:
-    Event(QString id, EVENT_TYPE type, double time)
-    {
-        m_id=id;
-        m_type=type;
-        m_time=time;
-    }
+    /**
+     * Normal constructor for the EVENT
+     * @param id - identifier for the Event
+     * @param type - EVENT_TYPE
+     * @param time - time that the event occurred
+     */
+    Event(QString id, EVENT_TYPE type, double time) : m_id(id), m_type(type), m_time(time) {}
 
+    /**
+     * COPY CONSTRUCTOR - shallow copy
+     * @param e - EVENT Object that the information is copied from
+     */
+    Event(const Event &e) : m_id(e.m_id), m_type(e.m_type), m_time(e.m_time) {}
+
+    /**
+     * JAVA Style to string function so that the object can be printed out. We could have
+     * created a friend function and passed in the iostream. Decided that this particular
+     * design was how I wanted to implement this functionality.
+     * @return String representation of the EVENT
+     */
     std::string toString()
     {
         std::string event_str = "";
@@ -44,10 +57,12 @@ public:
         return m_id.toStdString() + " (" + event_str + ") occurred at " + std::to_string(m_time);
     }
 
+    /// getter functions for the Event
     QString getID() const { return m_id; }
     EVENT_TYPE getType() const { return m_type; }
     double getTime() const { return m_time; }
 
+    /// setter functions for the Event
     void setID(QString id) { m_id = id; }
     void setType(EVENT_TYPE type) { m_type = type; }
     void setTime(double time) { m_time = time; }
@@ -62,13 +77,26 @@ protected:
 class Container
 {
 public:
-    Container(QString id, int capacity, std::vector<Event> events)
-    {
-        m_id = id;
-        m_capacity = capacity;
-        m_events = events;
-    }
+    /**
+     * Normal constructor for the Container object
+     * @param id - identifier for the container
+     * @param capacity - max number of events in the container
+     * @param events - list of events currently in the container
+     */
+    Container(QString id, int capacity, std::vector<Event> events):  m_id(id), m_capacity(capacity), m_events(events) {}
 
+    /**
+     * COPY CONSTRUCTOR - shallow copy
+     * @param c - Container object to copy information from
+     */
+    Container(const Container &c) : m_id(c.m_id), m_capacity(c.m_capacity), m_events(c.m_events) {}
+
+    /**
+     * JAVA Style to string function so that the object can be printed out. We could have
+     * created a friend function and passed in the iostream. Decided that this particular
+     * design was how I wanted to implement this functionality.
+     * @return String representation of the Container
+     */
     std::string toString()
     {
         return "";
@@ -79,6 +107,12 @@ public:
     int getCapacity() { return m_capacity; }
     std::vector<Event> getEvents() { return m_events; }
 
+    /**
+     * Add an event to the container. In a normal container the events are added to the back
+     * of the list. This function is virtual and the children can choose to override it.
+     * @param e - Event that we wish to add to the back of the list
+     * @return - True if the event was successfully added
+     */
     virtual bool addEvent(Event &e)
     {
         if(m_events.size() < m_capacity)
@@ -99,13 +133,28 @@ protected:
 class DESQueue : public Container
 {
 public:
+    /**
+     * Normal constructor for the DES Queue
+     * @param id - Name of the queue
+     * @param capacity - capacity of the queue
+     * @param events - list of events currently in the queue
+     * @param type - Queue type FIFO or LIFO
+     */
     DESQueue(QString id, int capacity, std::vector<Event> events, QUEUE_TYPE type)
-    : Container(id, capacity, events)
-    {
-        m_type = type;
-    }
+    : Container(id, capacity, events), m_type(type) {}
 
+    /**
+     * COPY CONSTRUCTOR - shallow copy
+     * @param q - DESQueue object to copy information from
+     */
+    DESQueue(const DESQueue &q) : Container(q.m_id, q.m_capacity, q.m_events), m_type(q.m_type) {}
 
+    /**
+     * JAVA Style to string function so that the object can be printed out. We could have
+     * created a friend function and passed in the iostream. Decided that this particular
+     * design was how I wanted to implement this functionality.
+     * @return String representation of the DESQueue
+     */
     std::string toString()
     {
         return "";
@@ -114,6 +163,12 @@ public:
     /// public getter not setters
     QUEUE_TYPE getType() { return m_type; }
 
+    /**
+     * Add the event to the list of events. If this is a FIFO queue then it is added to the back, otherwise
+     * the event is added to the front of the list.
+     * @param e - Event that we wish to add to the Container
+     * @return - True if the Event was successfully added to the list of events
+     */
     bool addEvent(Event &e)
     {
         if(m_events.size() < m_capacity)
@@ -126,7 +181,10 @@ public:
             {
                 m_events.emplace(m_events.begin(), e);
             }
+            return true;
         }
+
+        return false;
     }
 
 protected:

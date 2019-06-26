@@ -348,6 +348,8 @@ void DESFile::simulate()
     for( auto& event : m_events)
     {
 
+        bool end_simulation = false;
+
         switch(event.getType())
         {
             case ARRIVAL:
@@ -401,7 +403,15 @@ void DESFile::simulate()
             case TERMINATE:
             {
                 std::cout << event.toString() << std::endl;
+                end_simulation = true;
             }
+            break;
+        }
+
+
+        /// time to end the creation of records ... which means the end of simulation !
+        if(end_simulation)
+        {
             break;
         }
 
