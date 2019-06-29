@@ -24,19 +24,30 @@ enum QUEUE_TYPE
 class Event
 {
 public:
+
+    /**
+     * OVERRIDE Constructor
+     */
+    Event() {}
+
     /**
      * Normal constructor for the EVENT
      * @param id - identifier for the Event
      * @param type - EVENT_TYPE
      * @param time - time that the event occurred
      */
-    Event(QString id, EVENT_TYPE type, double time) : m_id(id), m_type(type), m_time(time) {}
+    Event(std::string id, EVENT_TYPE type, double time) : m_id(id), m_type(type), m_time(time) {}
 
     /**
      * COPY CONSTRUCTOR - shallow copy
      * @param e - EVENT Object that the information is copied from
      */
-    Event(const Event &e) : m_id(e.m_id), m_type(e.m_type), m_time(e.m_time) {}
+    Event(const Event &e)
+    {
+        m_id = e.m_id;
+        m_type = e.m_type;
+        m_time = e.m_time;
+    }
 
     /**
      * JAVA Style to string function so that the object can be printed out. We could have
@@ -54,21 +65,21 @@ public:
             case TERMINATE: event_str = "TERMINATE"; break;
         }
 
-        return m_id.toStdString() + " (" + event_str + ") occurred at " + std::to_string(m_time);
+        return m_id + " (" + event_str + ") occurred at " + std::to_string(m_time);
     }
 
     /// getter functions for the Event
-    QString getID() const { return m_id; }
+    std::string getID() const { return m_id; }
     EVENT_TYPE getType() const { return m_type; }
     double getTime() const { return m_time; }
 
     /// setter functions for the Event
-    void setID(QString id) { m_id = id; }
+    void setID(std::string id) { m_id = id; }
     void setType(EVENT_TYPE type) { m_type = type; }
     void setTime(double time) { m_time = time; }
 
 protected:
-    QString m_id;
+    std::string m_id;
     EVENT_TYPE m_type;
     double m_time;
 };
@@ -77,6 +88,11 @@ protected:
 class Container
 {
 public:
+    /**
+     * OVERRIDE CONSTRUCTOR
+     */
+    Container() {}
+
     /**
      * Normal constructor for the Container object
      * @param id - identifier for the container
@@ -124,6 +140,20 @@ public:
         return false;
     }
 
+    /**
+     * Remove the event from the list of events. This is not a dequeue function; we will only
+     * remove the item (no matter where it is).
+     * @param e - Event containing the id that we wish to remove
+     * @return True if successful removal
+     */
+    virtual bool removeEvent(Event &e)
+    {
+        std::vector<Event>::iterator it = std::remove_if(m_events.begin(), m_events.end(),
+                [e] (const Event& event) { return event.getID() == e.getID(); } );
+
+        return it != m_events.end();
+    }
+
 protected:
     QString m_id;
     int m_capacity;
@@ -133,6 +163,11 @@ protected:
 class DESQueue : public Container
 {
 public:
+    /**
+     * OVERRIDE Constructor
+     */
+    DESQueue() {}
+
     /**
      * Normal constructor for the DES Queue
      * @param id - Name of the queue
@@ -187,10 +222,27 @@ public:
         return false;
     }
 
+    /**
+     * Remove the first Event from the list of events. If this is a fifo queue remove the first element
+     * otherwise remove the last element of the list (LIFO).
+     * @return True if successful
+     */
+    bool dequeue()
+    {
+        if(m_events.size() <= 0)
+        {
+            return false;
+        }
+
+        /// the addEvent function adds the data to the correct end of the
+        /// list, so we can just remove the first element from now on.
+        m_events.erase(m_events.begin());
+        return true;
+    }
+
 protected:
     QUEUE_TYPE m_type;
 };
-
 
 //struct Record {
 //    double time;

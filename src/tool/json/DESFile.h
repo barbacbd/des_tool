@@ -16,13 +16,6 @@
 #include <QJsonArray>
 #include "../components/Components.h"
 
-enum FILE_TYPE
-{
-    UNSUPPORTED,
-    TXT,
-    JSON
-};
-
 class DESFile
 {
 public:
@@ -36,7 +29,11 @@ public:
      */
     ~DESFile();
 
-
+    /// public getter functions
+    std::vector<Event> getEvents() {return m_events;}
+    std::vector<Container*> getQueues() {return m_queues;}
+    std::vector<Container*> getServers() {return m_servers;}
+    std::map<EVENT_TYPE , int> getEventOrder() {return m_event_types;}
 
 private:
 
@@ -52,17 +49,12 @@ private:
      * @return QJsonValue, empty value if the document is empty
      */
     QJsonValue getJsonValue(QString name);
-    /**
-     * Attempt to parse the file if it is a txt file.
-     * @param data - data contained in the .txt file
-     */
-    void parseTXT(QString data);
 
     /**
      * Attempt to parse the file if is a json file
      * @param data - data contained in the .json file
      */
-    void parseJSON(QString data);
+    void parse(QString data);
 
     /**
      * Create all events from the list in the json file.
@@ -90,21 +82,6 @@ private:
      */
     void createQueues(QJsonValue queues);
 
-    /**
-     * Run the simulation given all DES information that we have read in.
-     * To avoid any user issues, this function will only be called at the end
-     * of read().
-     */
-    void simulate();
-
-    /**
-     * Function to find the minimum container from the list provided. We should be able to
-     * pass both of our lists for queues and servers since they are both technically containers.
-     * @param vec - vector of containers to find the minimum in
-     * @return - index of the container with the minimum capacity, -1 if there is a failure.
-     */
-    int findMinAvailableContainer(std::vector<Container*> vec);
-
 private:
     QJsonDocument m_doc;
 
@@ -115,9 +92,6 @@ private:
     std::vector<Event> m_events;
     std::vector<Container*> m_servers;
     std::vector<Container*> m_queues;
-
-    FILE_TYPE m_file_type;
-
 };
 
 

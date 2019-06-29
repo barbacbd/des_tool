@@ -141,65 +141,11 @@ struct System_Information
 	statistics stats;
 };
 
-/**
- * Simple color structure - used to control and
- * alter the color of buttons
- */
-struct color
-{
-	float r;
-	float g;
-	float b;
-};
-
-/**
- * Common structure to create all of the buttons for the display
- */
-struct button
-{
-	float xmin;
-	float xmax;
-	float ymin;
-	float ymax;
-	char *text;
-	color c;
-};
-
-
-
-/**
- * Common structure to draw an up or down arrow
- */
-struct arrow
-{
-	button b;
-	int dir; /* 0 - up, 1 - down */
-};
-
-
 /* variables for the display */
 extern int winHeight, winWidth;
 extern System_Information info;
 extern int state, sim_pos;
 extern int curr_start;
 extern std::vector<std::string> filenames;
-
-/* colors of the representative buttons */
-extern button home;
-extern button quit;
-extern button all_events;
-extern button event_info;
-extern button queues;
-extern button servers;
-extern button next_events;
-extern button stats;
-extern button next;
-extern button prev;
-extern button back;
-extern button start;
-extern button cont;
-extern button generate_report;
-extern arrow up;
-extern arrow down;
 
 #endif

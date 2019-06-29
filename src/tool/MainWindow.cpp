@@ -3,6 +3,7 @@
 #include <QFileDialog>
 #include <iostream>
 #include "json/DESFile.h"
+#include "simulation/Simulation.h"
 
 MainWindow::MainWindow()
 {
@@ -53,7 +54,7 @@ void MainWindow::onFileOpen()
 
     /// set the files to only be txt or json files since the
     /// ConfigCreator will only create these types of files
-    fd.setNameFilter("*.txt *.json");
+    fd.setNameFilter("*.json");
 
     if(QFileDialog::Accepted == fd.exec())
     {
@@ -62,8 +63,11 @@ void MainWindow::onFileOpen()
         /// process this file
 
         DESFile desFile = DESFile(fd.selectedFiles().at(0));
-
-//        readJsonDocument(fd.selectedFiles().at(0));
+        Simulation sim = Simulation(desFile.getEvents(),
+                desFile.getQueues(),
+                desFile.getServers(),
+                desFile.getEventOrder());
+        sim.run();
 
     }
 

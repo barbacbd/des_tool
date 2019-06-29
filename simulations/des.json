@@ -1,7 +1,7 @@
 {
   "QUEUES": [ {"ID": 1, "CAPACITY": 100, "TYPE": "FIFO"} ],
   "SERVERS": [ {"ID": 1, "CAPACITY": 3}, {"ID": 2, "CAPACITY": 3}],
-  "EVENT_ORDER" : ["ARRIVAL", "D", "T"],
+  "EVENT_ORDER" : ["D", "ARRIVAL", "T"],
   "EVENTS" : [
     {"ENTITY": 1, "TYPE": "A", "TIME": 1.3},
     {"ENTITY": 2, "TYPE": "A", "TIME": 2.5},

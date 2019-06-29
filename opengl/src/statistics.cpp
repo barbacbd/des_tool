@@ -121,26 +121,26 @@ void _avg_interarrivals(System_Information *info)
 
 /*****************************************************************************/
 
-
-/*
-	calculate ...
-
-	1. Amount left in Servers
-	2. Amount left in Queues
-	3. Idle Time of Servers
-	4. Percent Utilization of Servers
-	5. Max num in Queues
-	6. Max num in servers
-	7. Average Interarrival Times
-*/
-void create_statistics(System_Information *info)
-{
-	_num_left_in_servers(info);
-	_num_left_in_queues(info);
-	_find_idle_time(info);
-	_get_percent_util(info);
-	_get_max_queue(info);
-	_get_max_server(info);
-	_calc_interarrivals(info);
-	_avg_interarrivals(info);
-}
+//
+///*
+//	calculate ...
+//
+//	1. Amount left in Servers
+//	2. Amount left in Queues
+//	3. Idle Time of Servers
+//	4. Percent Utilization of Servers
+//	5. Max num in Queues
+//	6. Max num in servers
+//	7. Average Interarrival Times
+//*/
+//void create_statistics(System_Information *info)
+//{
+//	_num_left_in_servers(info);
+//	_num_left_in_queues(info);
+//	_find_idle_time(info);
+//	_get_percent_util(info);
+//	_get_max_queue(info);
+//	_get_max_server(info);
+//	_calc_interarrivals(info);
+//	_avg_interarrivals(info);
+//}

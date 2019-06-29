@@ -10,24 +10,9 @@ DESFile::DESFile(QString filename)
     /// NOTE: if filename is empty is becomes pretty much useless, the use will
     /// have to create a new file and read from it.
 
-    if(!filename.isEmpty())
+    if(!filename.isEmpty() && filename.endsWith(".json"))
     {
         m_filename = filename;
-
-        /// select the filetype for later so it is now an easier comparison than text
-        if(m_filename.endsWith(".txt"))
-        {
-            m_file_type = TXT;
-        }
-        else if(m_filename.endsWith(".json"))
-        {
-            m_file_type = JSON;
-        }
-        else
-        {
-            m_file_type = UNSUPPORTED;
-        }
-
         read();
     }
 }
@@ -54,28 +39,10 @@ void DESFile::read()
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     QString data=file.readAll();
     file.close();
-
-
-    switch(m_file_type)
-    {
-        case TXT: parseTXT(data); break;
-        case JSON: parseJSON(data); break;
-
-        /// add any new file type here
-
-        case UNSUPPORTED:
-        default:
-            /// do nothing, but adding a return in case code is added below or outside of the switch
-            return;
-    }
+    parse(data);
 }
 
-void DESFile::parseTXT(QString data)
-{
-
-}
-
-void DESFile::parseJSON(QString data)
+void DESFile::parse(QString data)
 {
     /// convert the string to a json document and get the first object {}
     m_doc = QJsonDocument::fromJson(data.toUtf8());
@@ -98,9 +65,6 @@ void DESFile::parseJSON(QString data)
     {
         createQueues(queues);
     }
-
-    /// run the simualation now that all information has been read in.
-    simulate();
 }
 
 /**
@@ -121,7 +85,6 @@ QJsonValue DESFile::getJsonValue(QString name)
     return json_value;
 }
 
-/// function to create events
 void DESFile::orderEvents(QJsonValue events, QJsonValue order)
 {
     QJsonArray event_array = events.toArray();
@@ -203,7 +166,7 @@ void DESFile::orderEvents(QJsonValue events, QJsonValue order)
             continue;
         }
 
-        m_events.push_back(Event(entity, type, time));
+        m_events.emplace_back(Event(entity.toStdString(), type, time));
     }
 
     /// sort the events based on time and type
@@ -312,111 +275,4 @@ bool DESFile::compareEvents(const Event &a, const Event &b)
     {
         return false;
     }
-}
-
-
-int DESFile::findMinAvailableContainer(std::vector<Container*> vec)
-{
-    int min_size = std::numeric_limits<int>::max();
-
-    int pos = 0;
-    int min_pos = -1;
-    for(auto &container : vec)
-    {
-        uint64_t size = container->getEvents().size();
-
-        if(size < min_size && size < container->getCapacity())
-        {
-            min_pos = pos;
-        }
-        pos ++;
-    }
-
-    return min_pos;
-}
-
-void DESFile::simulate()
-{
-    if(m_servers.empty() || m_events.empty() || m_queues.empty())
-    {
-        /// don't try to simulate if there is missing information
-        return;
-    }
-
-    /// create Records that can be used as a step in time that will
-    /// show queue and server state information
-    for( auto& event : m_events)
-    {
-
-        bool end_simulation = false;
-
-        switch(event.getType())
-        {
-            case ARRIVAL:
-            {
-//                std::cout << event.toString() << std::endl;
-
-                int min_avail_server = findMinAvailableContainer(m_servers);
-                if(min_avail_server >= 0)
-                {
-                    /// send the event straight to the server
-                    m_servers[min_avail_server]->addEvent(event);
-                }
-                else
-                {
-                    /// find the minimum queue
-                    int min_avail_queue = findMinAvailableContainer(m_queues);
-                    if(min_avail_queue >= 0)
-                    {
-                        m_queues[min_avail_queue]->addEvent(event);
-                    }
-                    else
-                    {
-                        /// discard the item ... but let's log it or at least print it out.
-                        std::cout << "EVENT Failed: " << event.toString() << std::endl;
-                    }
-                }
-
-
-            }
-            break;
-
-            case DEPARTURE:
-            {
-                std::cout << event.toString() << std::endl;
-
-//                if(removeEvent(m_servers, event.getID()))
-//                {
-//                    /// Add the next event to the minimum server
-//                }
-//                else
-//                {
-//                    /// if the event is still in the queue it will be removed and logged that it wasn't able
-//                    /// to be processed ...
-//                }
-
-                /// search for the event in the queues, if exists, then remove it
-                /// and add the event to a server
-            }
-            break;
-
-            case TERMINATE:
-            {
-                std::cout << event.toString() << std::endl;
-                end_simulation = true;
-            }
-            break;
-        }
-
-
-        /// time to end the creation of records ... which means the end of simulation !
-        if(end_simulation)
-        {
-            break;
-        }
-
-    }
-
-    std::cout << "Finished" << std::endl;
-
 }
