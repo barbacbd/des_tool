@@ -8,8 +8,8 @@
 
 
 Simulation::Simulation(std::vector<Event> events,
-        std::vector<Container*> queues,
-        std::vector<Container*> servers,
+        std::vector<DESQueue> queues,
+        std::vector<DESServer> servers,
         std::map<EVENT_TYPE , int> event_types)
         : m_events(events), m_queues(queues), m_servers(servers), m_event_types(event_types)
 {
@@ -29,7 +29,7 @@ void Simulation::run()
                 return;
         }
 
-//        m_records.clear();
+        m_records.clear();
 
         /// create Records that can be used as a step in time that will
         /// show queue and server state information
@@ -42,21 +42,21 @@ void Simulation::run()
                 {
                         case ARRIVAL:
                         {
-                                std::cout << event.toString() << std::endl;
+//                                std::cout << event.toString() << std::endl;
 
-                                int min_avail_server = findMinAvailableContainer(m_servers);
+                                int min_avail_server = findMinAvailableServer(m_servers);
                                 if(min_avail_server >= 0)
                                 {
                                         /// send the event straight to the server
-                                        m_servers[min_avail_server]->addEvent(event);
+                                        m_servers[min_avail_server].addEvent(event);
                                 }
                                 else
                                 {
                                         /// find the minimum queue
-                                        int min_avail_queue = findMinAvailableContainer(m_queues);
+                                        int min_avail_queue = findMinAvailableQueue(m_queues);
                                         if(min_avail_queue >= 0)
                                         {
-                                                m_queues[min_avail_queue]->addEvent(event);
+                                                m_queues[min_avail_queue].addEvent(event);
                                         } else { continue; }
                                 }
 
@@ -66,41 +66,34 @@ void Simulation::run()
 
                         case DEPARTURE:
                         {
-                                std::cout << event.toString() << std::endl;
+//                                std::cout << event.toString() << std::endl;
 
-                                if(!removeEvent(event))
-                                {
+                            removeEvent(event);
+                            queueToServer();
+//
+//                                if(removeEvent(event))
+//                                {
 //                                    queueToServer();
-                                }
+//                                }
                         }
                         break;
 
                         case TERMINATE:
                         {
-                                std::cout << event.toString() << std::endl;
+//                                std::cout << event.toString() << std::endl;
                                 end_simulation = true;
                         }
                         break;
                 }
 
-//                /// create the record that can be saved as a snapshot
-//                Record r;
-//                r.time = e.time;
-//
-//                /// these calls should hit the copy constructor of each
-//                /// of the classes and then a shallow copy should be made
-//                for(auto &queue : m_queues)
-//                {
-//                        r.queues.push_back(queue);
-//                }
-//
-//                for(auto &server : m_servers)
-//                {
-//                        r.servers.push_back(server);
-//                }
-//
-//                /// add the record to our list
-//                m_records.push_back(r);
+                /// create the record that can be saved as a snapshot
+                Record r;
+                r.setTime(event.getTime());
+                r.setQueues(m_queues);
+                r.setServers(m_servers);
+
+                /// add the record to our list
+                m_records.push_back(r);
 
                 /// time to end the creation of records ... which means the end of simulation !
                 if(end_simulation)
@@ -110,27 +103,77 @@ void Simulation::run()
 
         }
 
-        std::cout << "Finished" << std::endl;
+//    for(auto &r : m_records)
+//    {
+//        std::cout << r.toString() << std::endl;
+//    }
 }
 
-int Simulation::findMinAvailableContainer(std::vector<Container*> vec)
+int Simulation::findMinAvailableQueue(std::vector<DESQueue> vec)
 {
         int min_size = std::numeric_limits<int>::max();
 
         int pos = 0;
         int min_pos = -1;
-        for(auto &container : vec)
+        for(auto &q : vec)
         {
-                uint64_t size = container->getEvents().size();
+                uint64_t size = q.getEvents().size();
 
-                if(size < min_size && size < container->getCapacity())
+                if(size < min_size && size < q.getCapacity())
                 {
                         min_pos = pos;
+                        min_size = size;
                 }
                 pos ++;
         }
 
+        std::cout << "MIN QUEUE = " << min_pos << std::endl;
+
         return min_pos;
+}
+
+int Simulation::findMaxQueue(std::vector<DESQueue> vec)
+{
+    int max_size = -1;
+
+    int pos = 0;
+    int max_pos = -1;
+    for(auto &q : vec)
+    {
+        uint64_t size = q.getEvents().size();
+
+        if(size > max_size)
+        {
+            max_pos = pos;
+            max_size = size;
+        }
+        pos ++;
+    }
+
+    return max_pos;
+}
+
+int Simulation::findMinAvailableServer(std::vector<DESServer> vec)
+{
+    int min_size = std::numeric_limits<int>::max();
+
+    int pos = 0;
+    int min_pos = -1;
+    for(auto &s : vec)
+    {
+        uint64_t size = s.getEvents().size();
+
+        if(size < min_size && size < s.getCapacity())
+        {
+            min_pos = pos;
+            min_size = size;
+        }
+        pos ++;
+    }
+
+    std::cout << "MIN SERVER = " << min_pos << std::endl;
+
+    return min_pos;
 }
 
 int Simulation::findTermination()
@@ -201,11 +244,36 @@ bool Simulation::removeEvent(Event &e)
 {
         for(auto &server : m_servers)
         {
-                if(server->removeEvent(e))
+                if(server.removeEvent(e))
                 {
+                    std::cout << "Removing event!" << std::endl;
                         return true;
                 }
         }
 
         return false;
+}
+
+void Simulation::queueToServer()
+{
+    /// while the servers are not full ... and there are still elements in the queues ...
+    /// add the next element to leave the [max] queue to the min server
+
+    int min_server;
+
+    while((min_server = findMinAvailableServer(m_servers) >= 0))
+    {
+        int max_pos = findMaxQueue(m_queues);
+
+        if(max_pos < 0 )
+        {
+            /// no more elements in the queues
+            break;
+        }
+
+        /// add the element from the queue to the min server
+        Event event = m_queues[max_pos].getNextExit();
+        m_servers[min_server].addEvent(event);
+        m_queues[max_pos].dequeue();
+    }
 }

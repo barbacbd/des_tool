@@ -7,6 +7,8 @@
 #define DESTOOL_COMPONENTS_H
 
 #include <QString>
+#include <iostream>
+#include <sstream>
 
 enum EVENT_TYPE
 {
@@ -99,7 +101,8 @@ public:
      * @param capacity - max number of events in the container
      * @param events - list of events currently in the container
      */
-    Container(QString id, int capacity, std::vector<Event> events):  m_id(id), m_capacity(capacity), m_events(events) {}
+    Container(std::string id, int capacity, std::vector<Event> events)
+    : m_id(id), m_capacity(capacity), m_events(events) {}
 
     /**
      * COPY CONSTRUCTOR - shallow copy
@@ -113,13 +116,11 @@ public:
      * design was how I wanted to implement this functionality.
      * @return String representation of the Container
      */
-    std::string toString()
-    {
-        return "";
-    }
+    virtual std::string toString() = 0;
+
 
     /// public getter fucntions, no setters (this class is essentially immutable)
-    QString getID() { return m_id; }
+    std::string getID() { return m_id; }
     int getCapacity() { return m_capacity; }
     std::vector<Event> getEvents() { return m_events; }
 
@@ -151,13 +152,57 @@ public:
         std::vector<Event>::iterator it = std::remove_if(m_events.begin(), m_events.end(),
                 [e] (const Event& event) { return event.getID() == e.getID(); } );
 
-        return it != m_events.end();
+        if(it != m_events.end())
+        {
+            m_events.erase(it);
+            return true;
+        }
+
+        return false;
     }
 
 protected:
-    QString m_id;
+    std::string m_id;
     int m_capacity;
     std::vector<Event> m_events;
+};
+
+class DESServer : public Container
+{
+public:
+    /**
+     * OVERRIDE Constructor
+     */
+    DESServer() : Container() {}
+
+    /**
+     * Normal constructor for the DES Server
+     * @param id - Name of the server
+     * @param capacity - capacity of the server
+     * @param events - list of events currently in the queue
+     */
+    DESServer(std::string id, int capacity, std::vector<Event> events)
+    : Container(id, capacity, events) {}
+
+    /**
+     * COPY CONSTRUCTOR - shallow copy
+     * @param q - DESServer object to copy information from
+     */
+    DESServer(const DESServer &q) : Container(q.m_id, q.m_capacity, q.m_events) {}
+
+    /**
+     * JAVA Style to string function so that the object can be printed out. We could have
+     * created a friend function and passed in the iostream. Decided that this particular
+     * design was how I wanted to implement this functionality.
+     * @return String representation of the DESServer
+     */
+    virtual std::string toString()
+    {
+        std::stringstream ss;
+        ss << "DESServer: " << m_id << " Capacity: " << m_capacity << " Total: " << m_events.size();
+        return ss.str();
+    }
+
 };
 
 class DESQueue : public Container
@@ -166,7 +211,7 @@ public:
     /**
      * OVERRIDE Constructor
      */
-    DESQueue() {}
+    DESQueue() : Container() {}
 
     /**
      * Normal constructor for the DES Queue
@@ -175,7 +220,7 @@ public:
      * @param events - list of events currently in the queue
      * @param type - Queue type FIFO or LIFO
      */
-    DESQueue(QString id, int capacity, std::vector<Event> events, QUEUE_TYPE type)
+    DESQueue(std::string id, int capacity, std::vector<Event> events, QUEUE_TYPE type)
     : Container(id, capacity, events), m_type(type) {}
 
     /**
@@ -190,9 +235,11 @@ public:
      * design was how I wanted to implement this functionality.
      * @return String representation of the DESQueue
      */
-    std::string toString()
+    virtual std::string toString()
     {
-        return "";
+        std::stringstream ss;
+        ss << "DESQueue: " << m_id << " " << int(m_type) << " Capacity: " << m_capacity << " Total: " << m_events.size();
+        return ss.str();
     }
 
     /// public getter not setters
@@ -223,6 +270,21 @@ public:
     }
 
     /**
+     * @return a shallow copy of the next event to be removed.
+     */
+    Event getNextExit()
+    {
+        if(m_events.size() <= 0)
+        {
+            return Event();
+        }
+        else
+        {
+            return (m_type == FIFO) ? m_events[0] : m_events.back();
+        }
+    }
+
+    /**
      * Remove the first Event from the list of events. If this is a fifo queue remove the first element
      * otherwise remove the last element of the list (LIFO).
      * @return True if successful
@@ -244,13 +306,63 @@ protected:
     QUEUE_TYPE m_type;
 };
 
-//struct Record {
-//    double time;
-//    std::vector<Event> events;
-//    std::vector<Container> servers;
-//    std::vector<Queue> queues;
-//};
-//
+class Record
+{
+public:
+    /**
+     * OVERRIDE Constructor
+     */
+    Record() {}
+
+    /**
+     * Copy Constructor
+     * @param r - Record to initialize this record with
+     */
+    Record(const Record &r)
+    {
+        m_time = r.m_time;
+        m_queues = r.m_queues;
+        m_servers = r.m_servers;
+    }
+
+    /// public getter and setter functions
+    void setTime(double time) { m_time = time; }
+    void setServers(std::vector<DESServer> servers) { m_servers = servers; }
+    void setQueues(std::vector<DESQueue> queues) { m_queues = queues; }
+
+    double getTime() {return m_time; }
+    std::vector<DESServer> getServers() { return m_servers; }
+    std::vector<DESQueue> getQueues() { return m_queues; }
+
+    /**
+     * JAVA Style to string function so that the object can be printed out. We could have
+     * created a friend function and passed in the iostream. Decided that this particular
+     * design was how I wanted to implement this functionality.
+     * @return String representation of the Record
+     */
+    std::string toString()
+    {
+        std::stringstream ss;
+        ss << "RECORD: " << m_time << std::endl;
+
+        for(auto &q : m_queues)
+        {
+            ss << q.toString() << std::endl;
+        }
+
+        for(auto &s : m_servers)
+        {
+            ss << s.toString() << std::endl;
+        }
+
+        return ss.str();
+    }
+
+private:
+    double m_time;
+    std::vector<DESQueue> m_queues;
+    std::vector<DESServer> m_servers;
+};
 
 
 #endif //DESTOOL_COMPONENTS_H

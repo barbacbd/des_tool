@@ -19,15 +19,7 @@ DESFile::DESFile(QString filename)
 
 DESFile::~DESFile()
 {
-    for(auto &i : m_queues)
-    {
-        delete i;
-    }
 
-    for(auto &i : m_servers)
-    {
-        delete i;
-    }
 }
 
 void DESFile::read()
@@ -200,7 +192,7 @@ void DESFile::createServers(QJsonValue servers)
 
         /// check to make sure the server id does not exist ???
         std::vector<Event> events;
-        m_servers.emplace_back(new Container(id, capacity, events));
+        m_servers.emplace_back(DESServer(id.toStdString(), capacity, events));
     }
 }
 
@@ -254,7 +246,7 @@ void DESFile::createQueues(QJsonValue queues)
         std::vector<Event> events;
 
         /// check to make sure the server id does not exist ???
-        m_queues.emplace_back(new DESQueue(id, capacity, events, type));
+        m_queues.emplace_back(DESQueue(id.toStdString(), capacity, events, type));
     }
 }
 

@@ -31,8 +31,8 @@ public:
 
     /// public getter functions
     std::vector<Event> getEvents() {return m_events;}
-    std::vector<Container*> getQueues() {return m_queues;}
-    std::vector<Container*> getServers() {return m_servers;}
+    std::vector<DESQueue> getQueues() {return m_queues;}
+    std::vector<DESServer> getServers() {return m_servers;}
     std::map<EVENT_TYPE , int> getEventOrder() {return m_event_types;}
 
 private:
@@ -90,8 +90,8 @@ private:
     std::map<EVENT_TYPE , int> m_event_types;
 
     std::vector<Event> m_events;
-    std::vector<Container*> m_servers;
-    std::vector<Container*> m_queues;
+    std::vector<DESServer> m_servers;
+    std::vector<DESQueue> m_queues;
 };
 
 
