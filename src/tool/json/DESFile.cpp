@@ -229,7 +229,7 @@ void DESFile::createQueues(QJsonValue queues)
         if(typeValue.isString()) {
             QString str = typeValue.toString();
 
-            if(str.compare("FIFO", Qt::CaseInsensitive))
+            if(str.compare("FIFO", Qt::CaseInsensitive) == 0)
             {
                 type = FIFO;
             }

@@ -71,10 +71,10 @@ void MainWindow::onFileOpen()
 
         std::vector<Record> records = sim.getRecords();
 
-        for(auto &r : records)
-        {
-            std::cout << r.toString() << std::endl;
-        }
+//        for(auto &r : records)
+//        {
+//            std::cout << r.toString() << std::endl;
+//        }
 
     }
 

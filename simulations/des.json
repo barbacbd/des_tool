@@ -1,5 +1,5 @@
 {
-  "QUEUES": [ {"ID": 1, "CAPACITY": 100, "TYPE": "FIFO"} ],
+  "QUEUES": [ {"ID": 1, "CAPACITY": 100, "TYPE": "LIFO"} ],
   "SERVERS": [ {"ID": 1, "CAPACITY": 3}, {"ID": 2, "CAPACITY": 3}],
   "EVENT_ORDER" : ["D", "ARRIVAL", "T"],
   "EVENTS" : [
@@ -33,7 +33,7 @@
     {"ENTITY": 10, "TYPE": "D", "TIME": 37.1},
     {"ENTITY": 11, "TYPE": "D", "TIME": 37.4},
     {"ENTITY": 12, "TYPE": "D", "TIME": 37.9},
-    {"ENTITY": 13, "TYPE": "D", "TIME": 39.4},
+    {"ENTITY": 13, "TYPE": "D", "TIME": 36.4},
     {"ENTITY": 19, "TYPE": "A", "TIME": 39.4},
     {"ENTITY": 14, "TYPE": "D", "TIME": 40.1},
     {"ENTITY": 15, "TYPE": "D", "TIME": 40.9},

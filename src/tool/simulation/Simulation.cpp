@@ -44,7 +44,7 @@ void Simulation::run()
                         {
 //                                std::cout << event.toString() << std::endl;
 
-                                int min_avail_server = findMinAvailableServer(m_servers);
+                                int min_avail_server = findMinAvailableServer();
                                 if(min_avail_server >= 0)
                                 {
                                         /// send the event straight to the server
@@ -53,7 +53,7 @@ void Simulation::run()
                                 else
                                 {
                                         /// find the minimum queue
-                                        int min_avail_queue = findMinAvailableQueue(m_queues);
+                                        int min_avail_queue = findMinAvailableQueue();
                                         if(min_avail_queue >= 0)
                                         {
                                                 m_queues[min_avail_queue].addEvent(event);
@@ -68,13 +68,19 @@ void Simulation::run()
                         {
 //                                std::cout << event.toString() << std::endl;
 
-                            removeEvent(event);
-                            queueToServer();
-//
-//                                if(removeEvent(event))
-//                                {
-//                                    queueToServer();
-//                                }
+                            if(removeEvent(event))
+                            {
+                                queueToServer();
+                            }
+                            else
+                            {
+                                /// if the departure occured and the event is still in the queue,
+                                /// then we need to remove it from the queue.
+                                for(auto &q : m_queues)
+                                {
+                                    q.removeEvent(event);
+                                }
+                            }
                         }
                         break;
 
@@ -92,6 +98,8 @@ void Simulation::run()
                 r.setQueues(m_queues);
                 r.setServers(m_servers);
 
+                std::cout << r.toString() << std::endl;
+
                 /// add the record to our list
                 m_records.push_back(r);
 
@@ -102,20 +110,15 @@ void Simulation::run()
                 }
 
         }
-
-//    for(auto &r : m_records)
-//    {
-//        std::cout << r.toString() << std::endl;
-//    }
 }
 
-int Simulation::findMinAvailableQueue(std::vector<DESQueue> vec)
+int Simulation::findMinAvailableQueue()
 {
         int min_size = std::numeric_limits<int>::max();
 
         int pos = 0;
         int min_pos = -1;
-        for(auto &q : vec)
+        for(auto &q : m_queues)
         {
                 uint64_t size = q.getEvents().size();
 
@@ -127,22 +130,20 @@ int Simulation::findMinAvailableQueue(std::vector<DESQueue> vec)
                 pos ++;
         }
 
-        std::cout << "MIN QUEUE = " << min_pos << std::endl;
-
         return min_pos;
 }
 
-int Simulation::findMaxQueue(std::vector<DESQueue> vec)
+int Simulation::findMaxQueue()
 {
     int max_size = -1;
 
     int pos = 0;
     int max_pos = -1;
-    for(auto &q : vec)
+    for(auto &q : m_queues)
     {
-        uint64_t size = q.getEvents().size();
+        int size = int(q.getEvents().size());
 
-        if(size > max_size)
+        if(size > max_size && size > 0)
         {
             max_pos = pos;
             max_size = size;
@@ -153,13 +154,13 @@ int Simulation::findMaxQueue(std::vector<DESQueue> vec)
     return max_pos;
 }
 
-int Simulation::findMinAvailableServer(std::vector<DESServer> vec)
+int Simulation::findMinAvailableServer()
 {
     int min_size = std::numeric_limits<int>::max();
 
     int pos = 0;
     int min_pos = -1;
-    for(auto &s : vec)
+    for(auto &s : m_servers)
     {
         uint64_t size = s.getEvents().size();
 
@@ -170,8 +171,6 @@ int Simulation::findMinAvailableServer(std::vector<DESServer> vec)
         }
         pos ++;
     }
-
-    std::cout << "MIN SERVER = " << min_pos << std::endl;
 
     return min_pos;
 }
@@ -246,7 +245,6 @@ bool Simulation::removeEvent(Event &e)
         {
                 if(server.removeEvent(e))
                 {
-                    std::cout << "Removing event!" << std::endl;
                         return true;
                 }
         }
@@ -261,9 +259,9 @@ void Simulation::queueToServer()
 
     int min_server;
 
-    while((min_server = findMinAvailableServer(m_servers) >= 0))
+    while((min_server = findMinAvailableServer()) >= 0)
     {
-        int max_pos = findMaxQueue(m_queues);
+        int max_pos = findMaxQueue();
 
         if(max_pos < 0 )
         {

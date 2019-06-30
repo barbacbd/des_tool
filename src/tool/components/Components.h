@@ -23,6 +23,14 @@ enum QUEUE_TYPE
     LIFO
 };
 
+enum EVENT_STAGE
+{
+    NO_EXIT,    /// NEVER left the system
+    EARLY_EXIT, /// Departure event caused removal from queue (never processed)
+    CLEAN_EXIT, /// EXITED properly on departure (from server)
+    PROCESSED   /// Moved to Server
+};
+
 class Event
 {
 public:
@@ -38,7 +46,7 @@ public:
      * @param type - EVENT_TYPE
      * @param time - time that the event occurred
      */
-    Event(std::string id, EVENT_TYPE type, double time) : m_id(id), m_type(type), m_time(time) {}
+    Event(std::string id, EVENT_TYPE type, double time) : m_id(id), m_type(type), m_time(time), m_stage(NO_EXIT) {}
 
     /**
      * COPY CONSTRUCTOR - shallow copy
@@ -74,16 +82,19 @@ public:
     std::string getID() const { return m_id; }
     EVENT_TYPE getType() const { return m_type; }
     double getTime() const { return m_time; }
+    EVENT_STAGE  getStage() const {return m_stage;}
 
     /// setter functions for the Event
     void setID(std::string id) { m_id = id; }
     void setType(EVENT_TYPE type) { m_type = type; }
     void setTime(double time) { m_time = time; }
+    void setStage(EVENT_STAGE stage) { m_stage = stage; }
 
 protected:
     std::string m_id;
     EVENT_TYPE m_type;
     double m_time;
+    EVENT_STAGE m_stage;
 };
 
 
@@ -199,7 +210,13 @@ public:
     virtual std::string toString()
     {
         std::stringstream ss;
-        ss << "DESServer: " << m_id << " Capacity: " << m_capacity << " Total: " << m_events.size();
+        ss << "DESServer: " << m_id << " Capacity: " << m_capacity << " Total: " << m_events.size() << std::endl;
+
+        for(auto &e : m_events)
+        {
+            ss << e.toString() << std::endl;
+        }
+
         return ss.str();
     }
 
@@ -238,7 +255,14 @@ public:
     virtual std::string toString()
     {
         std::stringstream ss;
-        ss << "DESQueue: " << m_id << " " << int(m_type) << " Capacity: " << m_capacity << " Total: " << m_events.size();
+        ss << "DESQueue: " << m_id << " " << int(m_type) << " Capacity: " << m_capacity << " Total: "
+        << m_events.size() << std::endl;
+
+        for(auto &e : m_events)
+        {
+            ss << e.toString() << std::endl;
+        }
+
         return ss.str();
     }
 
@@ -280,7 +304,7 @@ public:
         }
         else
         {
-            return (m_type == FIFO) ? m_events[0] : m_events.back();
+            return m_events[0];
         }
     }
 
@@ -299,6 +323,7 @@ public:
         /// the addEvent function adds the data to the correct end of the
         /// list, so we can just remove the first element from now on.
         m_events.erase(m_events.begin());
+
         return true;
     }
 

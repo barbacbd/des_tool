@@ -49,19 +49,19 @@ protected:
      * @param vec - vector of QUEUE to find the minimum in
      * @return - index of the QUEUE with the minimum total, -1 if there is a failure.
      */
-    int findMinAvailableQueue(std::vector<DESQueue> vec);
+    int findMinAvailableQueue();
 
     /**
      * @param vec - vector of Queues to search for the maximum in
      * @return - index of the QUEUE with the max current elements, -1 if there is a failure
      */
-    int findMaxQueue(std::vector<DESQueue> vec);
+    int findMaxQueue();
 
     /**
      * @param vec - vector of Server to find the minimum in
      * @return - index of the Server with the minimum total, -1 if there is a failure.
      */
-    int findMinAvailableServer(std::vector<DESServer> vec);
+    int findMinAvailableServer();
 
     /**
      * Find the index of the termination event.
