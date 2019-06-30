@@ -102,8 +102,8 @@ SET_TARGET_PROPERTIES(des_tool
 add_custom_command(
         TARGET des_tool POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/simulations/des.txt
-        ${CMAKE_CURRENT_BINARY_DIR}/des.txt)
+        ${CMAKE_SOURCE_DIR}/simulations/des.json
+        ${CMAKE_CURRENT_BINARY_DIR}/des.json)
 
 install(TARGETS des_tool RUNTIME DESTINATION ${BINDIR})
 

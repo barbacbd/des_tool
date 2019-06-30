@@ -58,7 +58,7 @@ void MainWindow::onFileOpen()
 
     if(QFileDialog::Accepted == fd.exec())
     {
-        std::cout << "File = " << fd.selectedFiles().at(0).toStdString() << std::endl;
+//        std::cout << "File = " << fd.selectedFiles().at(0).toStdString() << std::endl;
 
         /// process this file
 
