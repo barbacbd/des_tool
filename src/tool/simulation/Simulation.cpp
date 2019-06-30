@@ -107,7 +107,7 @@ void Simulation::run()
                 r.setQueues(m_queues);
                 r.setServers(m_servers);
 
-                std::cout << r.toString() << std::endl;
+//                std::cout << r.toString() << std::endl;
 
                 /// add the record to our list
                 m_records.push_back(r);

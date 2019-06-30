@@ -77,9 +77,11 @@ protected:
     std::map<EVENT_TYPE, Event> getNextEventList(int cpos);
 
     /**
-     *
-     * @param e
-     * @return
+     * Search through the servers and remove the event from the server
+     * if it exists. NOTE: this should only find ONE event. It will only
+     * remove the first one that it finds.
+     * @param e - event to search for
+     * @return True if found and removed event, otherwise false.
      */
     bool removeEvent(Event &e);
 
