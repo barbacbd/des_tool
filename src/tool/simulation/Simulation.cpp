@@ -13,7 +13,13 @@ Simulation::Simulation(std::vector<Event> events,
         std::map<EVENT_TYPE , int> event_types)
         : m_events(events), m_queues(queues), m_servers(servers), m_event_types(event_types)
 {
-
+    for(auto &e : events)
+    {
+        if(e.getType() == ARRIVAL)
+        {
+            m_tracked_events.push_back(e);
+        }
+    }
 }
 
 Simulation::~Simulation()
@@ -48,6 +54,7 @@ void Simulation::run()
                                 if(min_avail_server >= 0)
                                 {
                                         /// send the event straight to the server
+                                        alterEventStage(event, PROCESSED);
                                         m_servers[min_avail_server].addEvent(event);
                                 }
                                 else
@@ -70,6 +77,7 @@ void Simulation::run()
 
                             if(removeEvent(event))
                             {
+                                alterEventStage(event, CLEAN_EXIT);
                                 queueToServer();
                             }
                             else
@@ -78,6 +86,7 @@ void Simulation::run()
                                 /// then we need to remove it from the queue.
                                 for(auto &q : m_queues)
                                 {
+                                    alterEventStage(event, EARLY_EXIT);
                                     q.removeEvent(event);
                                 }
                             }
@@ -271,7 +280,22 @@ void Simulation::queueToServer()
 
         /// add the element from the queue to the min server
         Event event = m_queues[max_pos].getNextExit();
+
+        alterEventStage(event, PROCESSED);
+
         m_servers[min_server].addEvent(event);
         m_queues[max_pos].dequeue();
+    }
+}
+
+void Simulation::alterEventStage(Event e, EVENT_STAGE stage)
+{
+    for(auto &event : m_tracked_events)
+    {
+        if(event.getID().compare(e.getID()) == 0)
+        {
+            event.setStage(stage);
+            break;
+        }
     }
 }

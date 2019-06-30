@@ -89,11 +89,20 @@ protected:
      */
     void queueToServer();
 
+    /**
+     * As we progress through the simulation keep track of what event has hit what stage.
+     * @param e - event in m_tracked_events to change;
+     * @param stage - stage that the event is set to.
+     */
+    void alterEventStage(Event e, EVENT_STAGE stage);
+
 private:
     std::vector<Event> m_events;
     std::vector<DESQueue> m_queues;
     std::vector<DESServer> m_servers;
     std::map<EVENT_TYPE, int> m_event_types;
+
+    std::vector<Event> m_tracked_events;
 
     std::vector<Record> m_records;
 };

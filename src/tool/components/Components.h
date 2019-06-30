@@ -57,6 +57,7 @@ public:
         m_id = e.m_id;
         m_type = e.m_type;
         m_time = e.m_time;
+        m_stage = e.m_stage;
     }
 
     /**
