@@ -15,6 +15,7 @@
 #include <QMenuBar>
 #include <QWidget>
 #include <QAction>
+#include "ui/MainWidget.h"
 
 
 class MainWindow : public QMainWindow
@@ -58,6 +59,8 @@ private:
     QMenu *m_file_menu;
 
     QMenu *m_help_menu;
+
+    MainWidget *m_main_widget;
 
 };
 

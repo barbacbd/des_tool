@@ -8,6 +8,9 @@
 MainWindow::MainWindow()
 {
     createMenu();
+
+    m_main_widget = new MainWidget(this);
+    setCentralWidget(m_main_widget);
 }
 
 MainWindow::~MainWindow()
@@ -70,6 +73,7 @@ void MainWindow::onFileOpen()
         sim.run();
 
         std::vector<Record> records = sim.getRecords();
+        m_main_widget->setInfo(desFile.getEvents(), sim.getRecords());
 
 //        for(auto &r : records)
 //        {

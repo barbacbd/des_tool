@@ -1,6 +1,7 @@
 add_subdirectory(json)
 add_subdirectory(components)
 add_subdirectory(simulation)
+add_subdirectory(ui)
 
 set(DES_TOOL_SOURCES_tool
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
