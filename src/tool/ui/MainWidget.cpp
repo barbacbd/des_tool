@@ -49,6 +49,20 @@ void MainWidget::init()
     layout->addWidget(m_prev_button, 3, 1, 1, 1);
     layout->addWidget(m_next_button, 3, 3, 1, 1);
 
+    m_queues = new QListWidget(this);
+    connect(m_queues, SIGNAL(itemSelectionChanged()), this, SLOT(queueChanged()));
+    m_servers = new QListWidget(this);
+    connect(m_servers, SIGNAL(itemSelectionChanged()), this, SLOT(serverChanged()));
+
+    layout->addWidget(m_queues, 1, 4, 2, 4);
+    layout->addWidget(m_servers, 4, 4, 2, 4);
+
+    m_queue_events = new QListWidget(this);
+    m_server_events = new QListWidget(this);
+
+    layout->addWidget(m_queue_events, 1, 9, 2, 4);
+    layout->addWidget(m_server_events, 4, 9, 2, 4);
+
     updateCurrentEvent();
 
     setLayout(layout);
@@ -106,18 +120,48 @@ void MainWidget::updateCurrentEvent()
 
 }
 
+void MainWidget::updateCurrentQueues()
+{
+    m_queues->clear();
+
+    if(m_current_index < m_records.size())
+    {
+        for(auto &q : m_records[m_current_index].getQueues())
+        {
+            QString type = (q.getType() == FIFO) ? "FIFO" : "LIFO";
+
+            QString queue_info = "QUEUE: " + QString::fromStdString(q.getID()) + " " + type;
+            m_queues->addItem(new QListWidgetItem(queue_info));
+        }
+    }
+}
+
+void MainWidget::updateCurrentServers()
+{
+    m_servers->clear();
+
+    if(m_current_index < m_records.size())
+    {
+        for(auto &q : m_records[m_current_index].getServers())
+        {
+            QString server_info = "Server: " + QString::fromStdString(q.getID());
+            m_servers->addItem(new QListWidgetItem(server_info));
+        }
+    }
+}
+
 void MainWidget::setInfo(std::vector<Event> events, std::vector<Record> records)
 {
     m_events = events;
     m_records = records;
     m_current_index = 0;
 
-    updateCurrentEvent();
+    update();
 }
 
 void MainWidget::previousEvent()
 {
-    if(m_events.empty())
+    if(m_events.empty() || m_records.empty())
     {
         return;
     }
@@ -127,7 +171,7 @@ void MainWidget::previousEvent()
         m_current_index--;
     }
 
-    updateCurrentEvent();
+    update();
 }
 
 void MainWidget::nextEvent()
@@ -137,10 +181,44 @@ void MainWidget::nextEvent()
         return;
     }
 
-    if(m_events[m_current_index].getType() != TERMINATE && m_current_index < m_events.size() - 1)
+    if(m_events[m_current_index].getType() != TERMINATE && m_current_index < m_events.size())
     {
         m_current_index ++;
     }
 
+    update();
+}
+
+void MainWidget::update()
+{
     updateCurrentEvent();
+    updateCurrentQueues();
+    updateCurrentServers();
+}
+
+void MainWidget::queueChanged()
+{
+    int row = m_queues->currentRow();
+
+    m_queue_events->clear();
+
+    for(auto &e : m_records[m_current_index].getQueues()[row].getEvents())
+    {
+        QString event_info = "Event: " + QString::fromStdString(e.getID()) + " : " + QVariant(e.getTime()).toString();
+        m_queue_events->addItem(new QListWidgetItem(event_info));
+    }
+}
+
+void MainWidget::serverChanged()
+{
+    int row = m_servers->currentRow();
+
+    m_server_events->clear();
+
+    for(auto &e : m_records[m_current_index].getServers()[row].getEvents())
+    {
+        QString event_info = "Event: " + QString::fromStdString(e.getID()) + " : " + QVariant(e.getTime()).toString();
+        m_server_events->addItem(new QListWidgetItem(event_info));
+    }
+
 }

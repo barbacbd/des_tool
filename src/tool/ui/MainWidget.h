@@ -27,14 +27,28 @@ private slots:
 
     void nextEvent();
 
+    void queueChanged();
+    void serverChanged();
+
 protected:
     void init();
 
     void updateCurrentEvent();
 
+    void updateCurrentQueues();
+    void updateCurrentServers();
+
+    void update();
+
 
 
 private:
+
+    QListWidget *m_queues;
+    QListWidget *m_queue_events;
+
+    QListWidget *m_servers;
+    QListWidget *m_server_events;
 
     QTableWidget *m_current_event;
 
