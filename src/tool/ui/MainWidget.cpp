@@ -9,7 +9,8 @@
 #include <QHeaderView>
 
 
-MainWidget::MainWidget(QWidget *parent) : QWidget(parent), m_current_index(0)
+MainWidget::MainWidget(QWidget *parent) 
+  : QWidget(parent), m_current_index(0), m_current_queue_row(-1), m_current_server_row(-1)
 {
     init();
 }
@@ -34,7 +35,7 @@ void MainWidget::init()
     m_current_event->setHorizontalHeaderItem(1, new QTableWidgetItem("Event Type"));
     m_current_event->setHorizontalHeaderItem(2, new QTableWidgetItem("Time"));
 
-    layout->addWidget(m_current_event, 1, 1, 1, 3);
+    layout->addWidget(m_current_event, 1, 1, 1, 2);
 
     QCommonStyle next_style;
     m_next_button = new QPushButton("", this);
@@ -47,21 +48,21 @@ void MainWidget::init()
     connect(m_prev_button, SIGNAL(released()), this, SLOT(previousEvent()));
 
     layout->addWidget(m_prev_button, 3, 1, 1, 1);
-    layout->addWidget(m_next_button, 3, 3, 1, 1);
+    layout->addWidget(m_next_button, 3, 2, 1, 1);
 
     m_queues = new QListWidget(this);
     connect(m_queues, SIGNAL(itemSelectionChanged()), this, SLOT(queueChanged()));
     m_servers = new QListWidget(this);
     connect(m_servers, SIGNAL(itemSelectionChanged()), this, SLOT(serverChanged()));
 
-    layout->addWidget(m_queues, 1, 4, 2, 4);
-    layout->addWidget(m_servers, 4, 4, 2, 4);
+    layout->addWidget(m_queues, 4, 1, 3, 2);
+    layout->addWidget(m_servers, 7, 1, 3, 2);
 
     m_queue_events = new QListWidget(this);
     m_server_events = new QListWidget(this);
 
-    layout->addWidget(m_queue_events, 1, 9, 2, 4);
-    layout->addWidget(m_server_events, 4, 9, 2, 4);
+    layout->addWidget(m_queue_events, 4, 4, 3, 2);
+    layout->addWidget(m_server_events, 7, 4, 3, 2);
 
     updateCurrentEvent();
 
@@ -194,15 +195,27 @@ void MainWidget::update()
     updateCurrentEvent();
     updateCurrentQueues();
     updateCurrentServers();
+    updateQueueEvents();
+    updateServerEvents();
 }
 
 void MainWidget::queueChanged()
 {
-    int row = m_queues->currentRow();
+    m_current_queue_row = m_queues->currentRow();
+
+    updateQueueEvents();
+}
+
+void MainWidget::updateQueueEvents()
+{
+    if(m_current_queue_row < 0)
+    {
+        return;
+    }
 
     m_queue_events->clear();
 
-    for(auto &e : m_records[m_current_index].getQueues()[row].getEvents())
+    for(auto &e : m_records[m_current_index].getQueues()[m_current_queue_row].getEvents())
     {
         QString event_info = "Event: " + QString::fromStdString(e.getID()) + " : " + QVariant(e.getTime()).toString();
         m_queue_events->addItem(new QListWidgetItem(event_info));
@@ -211,14 +224,23 @@ void MainWidget::queueChanged()
 
 void MainWidget::serverChanged()
 {
-    int row = m_servers->currentRow();
+    m_current_server_row = m_servers->currentRow();
+
+    updateServerEvents();
+}
+
+void MainWidget::updateServerEvents()
+{
+    if(m_current_server_row < 0)
+    {
+        return;
+    }
 
     m_server_events->clear();
 
-    for(auto &e : m_records[m_current_index].getServers()[row].getEvents())
+    for(auto &e : m_records[m_current_index].getServers()[m_current_server_row].getEvents())
     {
         QString event_info = "Event: " + QString::fromStdString(e.getID()) + " : " + QVariant(e.getTime()).toString();
         m_server_events->addItem(new QListWidgetItem(event_info));
     }
-
 }

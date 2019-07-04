@@ -38,6 +38,9 @@ protected:
     void updateCurrentQueues();
     void updateCurrentServers();
 
+    void updateQueueEvents();
+    void updateServerEvents();
+
     void update();
 
 
@@ -56,6 +59,8 @@ private:
     QPushButton *m_next_button;
 
     int m_current_index;
+    int m_current_queue_row;
+    int m_current_server_row;
 
     std::vector<Event> m_events;
     std::vector<Record> m_records;
