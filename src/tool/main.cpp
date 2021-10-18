@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     window.setMinimumSize(800, 600);
     window.show();
 
-    QFile f(":qdarkstyle/style.qss");
+    QFile f();
     if (!f.exists())
     {
         printf("Unable to set stylesheet, file not found\n");

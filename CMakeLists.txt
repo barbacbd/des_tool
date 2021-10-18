@@ -85,10 +85,8 @@ set(DES_TOOL_SOURCES
 set(DES_TOOL_HEADERS
         ${DES_TOOL_HEADERS})
 
-qt5_add_resources(UI_RESOURCES QDarkStyleSheet/qdarkstyle/style.qrc)
-
 # Add executables
-add_executable(des_tool ${DES_TOOL_SOURCES} ${UI_RESOURCES})
+add_executable(des_tool ${DES_TOOL_SOURCES})
 
 # Link it with the SISCommon and other libraries
 target_link_libraries(des_tool ${OTHER_LIBS} ${Qt5_LIBRARIES})
